@@ -6,6 +6,13 @@ paths:
   /user:
     post:
       summary: Create a new user
+      parameters: 
+        - name: code
+          description: Email verification code
+          in: query
+          required: true
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -81,7 +88,7 @@ paths:
           description: User not found
     delete:
       summary: Delete a user
-      description: Delete a user by username or id
+      description: Delete a user by id
       security:
         - bearerAuth: [admin]
       parameters:
