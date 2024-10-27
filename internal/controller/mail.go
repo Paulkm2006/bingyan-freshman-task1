@@ -9,11 +9,15 @@ import (
 
 func SendValidation(c echo.Context) error {
 	mail := c.QueryParam("mail")
-	status, err := utils.CheckEmailExist(mail)
+	status, t, err := utils.CheckEmailExist(mail)
 	if err != nil {
 		return echo.ErrInternalServerError
 	} else if status {
-		return echo.ErrTooManyRequests
+		return c.JSON(429, &param.Resp{
+			Success: false,
+			Msg:     "Interval too short",
+			Data:    t,
+		})
 	}
 	code := utils.GenerateValidationCode()
 	err = utils.SendValidation(mail, code)

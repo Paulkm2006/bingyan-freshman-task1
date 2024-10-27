@@ -36,6 +36,7 @@ type MailConfig struct {
 	Password string `yaml:"password"`
 	Nickname string `yaml:"nickname"`
 	Expire   int    `yaml:"expire"`
+	Resend   int    `yaml:"resend"`
 }
 type RedisConfig struct {
 	Host     string `yaml:"host"`

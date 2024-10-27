@@ -3,6 +3,7 @@ package utils
 import (
 	"bingyan-freshman-task0/internal/config"
 	"context"
+	"math"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -28,7 +29,7 @@ func WriteValidationCode(email string, code string) error {
 	if err != nil {
 		return err
 	}
-	err = RedisClient.Expire(ctx, email, time.Duration(config.Config.Mail.Expire*60)*time.Second).Err()
+	err = RedisClient.Expire(ctx, email, time.Duration(config.Config.Mail.Expire)*time.Second).Err()
 	return err
 }
 func GetValidationCode(email string) (string, error) {
@@ -49,14 +50,17 @@ func ValidateCode(email string, code string) (bool, error) {
 	return false, nil
 }
 
-func CheckEmailExist(email string) (bool, error) {
+func CheckEmailExist(email string) (bool, time.Time, error) {
 	ctx := context.Background()
-	_, err := RedisClient.Get(ctx, email).Result()
-	if err == redis.Nil {
-		return false, nil
+	t, err := RedisClient.TTL(ctx, email).Result()
+	if t == -2 {
+		return false, time.Now(), nil
 	}
 	if err != nil {
-		return false, err
+		return false, time.Now(), err
 	}
-	return true, nil
+	if config.Config.Mail.Resend-int(math.Round(t.Seconds())) < 0 {
+		return true, time.Now().Add(t), nil
+	}
+	return false, time.Now(), nil
 }

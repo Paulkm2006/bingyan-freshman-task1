@@ -22,7 +22,7 @@ func SendValidation(email string, code string) error {
 
 	subject := "BBingyan Email Validation"
 	content_type := "Content-Type: text/plain; charset=UTF-8"
-	body := "Your validation code is: " + code + "\r\nThis code will expire in " + strconv.Itoa(exp) + " minutes."
+	body := "Your validation code is: " + code + "\r\nThis code will expire in " + strconv.Itoa(exp) + " seconds."
 	msg := []byte("To: " + email + "\r\nFrom: " + nickname + "<" + user + ">\r\nSubject: " + subject + "\r\n" + content_type + "\r\n\r\n" + body)
 	err := smtp.SendMail(config.Config.Mail.Host+":"+config.Config.Mail.Port, auth, user, to, msg)
 	return err
