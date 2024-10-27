@@ -1,0 +1,11 @@
+jwt:
+  secret: 114514
+  expire: 3600
+server:
+  port: 8080
+  ver: v1
+admin:
+  username: admin
+  password: 
+postgres:
+  dsn: 

@@ -1,0 +1,203 @@
+openapi: 3.0.0
+info:
+  title: User management, authentication and authorization API
+  version: 1.0.0
+paths:
+  /user:
+    post:
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  required: true
+                  type: string
+                password:
+                  required: true
+                  type: string
+                email:
+                  required: false
+                  type: string
+                nickname:
+                  required: false
+                  type: string
+      responses:
+        '201':
+          description: User created
+        '409':
+          description: User already exists
+        '400':
+          description: Invalid input
+    get:
+      summary: Get user info
+      description: Get info of a user whether by username or id
+      security:
+        - bearerAuth: [user,admin]
+      parameters:
+        - name: username
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: id
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The specified user info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  msg:
+                    type: string
+                    description: Always empty
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      username:
+                        type: string
+                      password:
+                        type: string
+                        description: Always empty
+                      email:
+                        type: string
+                      nickname:
+                        type: string
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: User not found
+    delete:
+      summary: Delete a user
+      description: Delete a user by username or id
+      security:
+        - bearerAuth: [admin]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User deleted
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: User not found
+  /user/token:
+    post:
+      summary: Get access token for user
+      description: Get access token by username and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  required: true
+                  type: string
+                password:
+                  required: true
+                  type: string
+      responses:
+        '200':
+          description: Access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  msg:
+                    type: string
+                    description: Always empty
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                      expires_in:
+                        type: integer
+        '401':
+          description: Invalid username or password
+        '400':
+          description: Invalid input
+  /admin/token:
+    post:
+      summary: Get access token for admin
+      description: Get access token by username and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  required: true
+                  type: string
+                password:
+                  required: true
+                  type: string
+      responses:
+        '200':
+          description: Access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  msg:
+                    type: string
+                    description: Always empty
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                      expires_in:
+                        type: integer
+        '401':
+          description: Invalid username or password
+        '400':
+          description: Invalid input
+  /verify:
+    get:
+      summary: Get email verification code
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      scopes:
+        user: User access
+        admin: Admin access
+  responses:
+    UnauthorizedError:
+      description: Access token is missing, invalid, expired or does not have the required permissions
