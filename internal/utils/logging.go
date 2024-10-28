@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bingyan-freshman-task0/internal/config"
+	"os"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -29,7 +30,7 @@ func InitLogger(e *echo.Echo) {
 	zapConfig.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	core := zapcore.NewCore(
 		zapcore.NewJSONEncoder(zapConfig.EncoderConfig),
-		zapcore.AddSync(writer),
+		zapcore.NewMultiWriteSyncer(zapcore.AddSync(writer), zapcore.AddSync(os.Stdout)),
 		zap.DebugLevel,
 	)
 	Logger = zap.New(core)
