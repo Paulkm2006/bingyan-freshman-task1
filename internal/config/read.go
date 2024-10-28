@@ -13,6 +13,7 @@ type ConfigStruct struct {
 	Admin  AdminConfig    `yaml:"admin"`
 	Mail   MailConfig     `yaml:"mail"`
 	Redis  RedisConfig    `yaml:"redis"`
+	Logger LoggerConfig   `yaml:"logging"`
 }
 type JwtConfig struct {
 	Secret string `yaml:"secret"`
@@ -42,6 +43,11 @@ type RedisConfig struct {
 	Host     string `yaml:"host"`
 	Password string `yaml:"password"`
 	DB       int    `yaml:"db"`
+}
+
+type LoggerConfig struct {
+	Debug bool   `yaml:"debug"`
+	Path  string `yaml:"path"`
 }
 
 var Config ConfigStruct

@@ -7,17 +7,17 @@ import (
 	"bingyan-freshman-task0/internal/utils"
 
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
-
 	e := echo.New()
-	e.Use(middleware.Logger())
 	config.InitConfig()
 	router.InitRouter(e)
+	utils.InitLogger(e)
+	defer utils.Logger.Sync()
 	model.InitDB()
 	utils.InitRedis()
 	//model.AddDefaultAdmin()
-	e.Logger.Fatal(e.Start(":" + config.Config.Server.Port))
+	//e.Logger.Fatal(e.Start(":" + config.Config.Server.Port))
+	e.Start(":" + config.Config.Server.Port)
 }

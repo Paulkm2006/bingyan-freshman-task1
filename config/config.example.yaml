@@ -1,5 +1,5 @@
 jwt:
-  secret: 114514
+  secret: 
   expire: 3600
 server:
   port: 8080
@@ -9,3 +9,18 @@ admin:
   password: 
 postgres:
   dsn: 
+mail:
+  host: 
+  port: 587
+  username: 
+  password: 
+  expire: 300 
+  resend: 240 
+  nickname: BBingyan
+redis:
+  host: 
+  password: 
+  db: 0
+logging:
+  debug: true
+  path: logs/
