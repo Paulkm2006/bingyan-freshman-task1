@@ -8,12 +8,13 @@ import (
 	"crypto/md5"
 	"fmt"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
 func UserInfo(c echo.Context) error {
-	_, err := utils.ParseToken(c.Request().Header.Get("Authorization"))
+	token := c.Get("user").(*jwt.Token).Raw
+	_, err := utils.ParseToken(token)
 	if err != nil {
 		return echo.ErrUnauthorized
 	}
@@ -53,12 +54,7 @@ func UserLogin(c echo.Context) error {
 	if result.Password != fmt.Sprintf("%x", md5.Sum([]byte(user.Password))) {
 		return echo.ErrUnauthorized
 	}
-	claims := utils.JWTClaims{
-		UID:   result.ID,
-		Admin: false,
-		Exp:   config.Config.Jwt.Expire + jwt.TimeFunc().Unix(),
-	}
-	token, err := utils.GenerateToken(claims)
+	token, err := utils.GenerateToken(result.ID, false)
 	if err != nil {
 		return echo.ErrInternalServerError
 	}
@@ -96,11 +92,15 @@ func UserRegister(c echo.Context) error {
 
 func UserDelete(c echo.Context) error {
 	var user model.User
-	claims, err := utils.ParseToken(c.Request().Header.Get("Authorization"))
-	if err != nil || !claims.Admin {
+	token := c.Get("user").(*jwt.Token)
+	claims, err := utils.ParseToken(token.Raw)
+	if err != nil {
 		return echo.ErrUnauthorized
 	}
-	if err := c.Bind(&user); err != nil {
+	if !claims.Admin {
+		return echo.ErrForbidden
+	}
+	if err = c.Bind(&user); err != nil {
 		return echo.ErrBadRequest
 	}
 	err = model.DeleteUser(user.ID)

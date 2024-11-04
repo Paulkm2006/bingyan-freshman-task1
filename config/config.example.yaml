@@ -1,6 +1,10 @@
 jwt:
   secret: 
   expire: 3600
+  skippedPaths:
+    - /v1/user/token
+    - /v1/admin/token
+    - /v1/verify
 server:
   port: 8080
   ver: v1

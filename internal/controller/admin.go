@@ -8,7 +8,6 @@ import (
 	"crypto/md5"
 	"fmt"
 
-	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 )
 
@@ -24,12 +23,7 @@ func AdminLogin(c echo.Context) error {
 	if result.Password != fmt.Sprintf("%x", md5.Sum([]byte(adminUser.Password))) {
 		return echo.ErrUnauthorized
 	}
-	claims := utils.JWTClaims{
-		UID:   result.ID,
-		Admin: true,
-		Exp:   config.Config.Jwt.Expire + jwt.TimeFunc().Unix(),
-	}
-	token, err := utils.GenerateToken(claims)
+	token, err := utils.GenerateToken(result.ID, true)
 	if err != nil {
 		return echo.ErrInternalServerError
 	}

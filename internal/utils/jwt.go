@@ -2,51 +2,53 @@ package utils
 
 import (
 	"bingyan-freshman-task0/internal/config"
-	"log"
+	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
+	echojwt "github.com/labstack/echo-jwt/v4"
+	"github.com/labstack/echo/v4"
 )
 
 type JWTClaims struct {
-	UID   int   `json:"uid"`
-	Admin bool  `json:"admin"`
-	Exp   int64 `json:"exp"`
+	UID   int  `json:"uid"`
+	Admin bool `json:"admin"`
+	jwt.RegisteredClaims
 }
 
-func (claim JWTClaims) Valid() error {
-	if jwt.TimeFunc().Unix() > claim.Exp {
-		log.Println(jwt.TimeFunc().Unix())
-		log.Println(claim.Exp)
-		return jwt.NewValidationError("token expired", jwt.ValidationErrorExpired)
+func jwtSkipper(c echo.Context) bool {
+	for _, path := range config.Config.Jwt.SkippedPaths {
+		if path == c.Path() {
+			return true
+		}
 	}
-	return nil
+	return false
 }
 
-func GenerateToken(claims JWTClaims) (string, error) {
-	var jwtSecret = []byte(config.Config.Jwt.Secret)
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
-}
-
-func ParseToken(tokenString string) (*JWTClaims, error) {
-	var jwtSecret = []byte(config.Config.Jwt.Secret)
-	if tokenString[:7] != "Bearer " {
-		return nil, jwt.NewValidationError("invalid token", jwt.ValidationErrorMalformed)
+func InitJWT(e *echo.Echo) {
+	conf := echojwt.Config{
+		SigningKey:  []byte(config.Config.Jwt.Secret),
+		TokenLookup: "header:Authorization:Bearer ",
+		Skipper:     jwtSkipper,
 	}
-	tokenString = tokenString[7:]
-	token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return jwtSecret, nil
+	e.Use(echojwt.WithConfig(conf))
+}
+
+func GenerateToken(uid int, admin bool) (string, error) {
+	claims := &JWTClaims{
+		uid,
+		admin,
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(config.Config.Jwt.Expire * int64(time.Minute)))),
+		},
+	}
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(config.Config.Jwt.Secret))
+	return token, err
+}
+
+func ParseToken(token string) (*JWTClaims, error) {
+	claims := &JWTClaims{}
+	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(config.Config.Jwt.Secret), nil
 	})
-	if err != nil {
-		return nil, err
-	}
-	err = token.Claims.Valid()
-	if err != nil {
-		return nil, err
-	}
-	claims, ok := token.Claims.(*JWTClaims)
-	if !ok {
-		return nil, jwt.NewValidationError("invalid token", jwt.ValidationErrorMalformed)
-	}
-	return claims, nil
+	return claims, err
 }
