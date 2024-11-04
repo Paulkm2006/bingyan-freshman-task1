@@ -17,6 +17,7 @@ func main() {
 	defer utils.Logger.Sync()
 	model.InitDB()
 	utils.InitRedis()
+	utils.InitJWT(e)
 	//model.AddDefaultAdmin()
 	//e.Logger.Fatal(e.Start(":" + config.Config.Server.Port))
 	e.Start(":" + config.Config.Server.Port)

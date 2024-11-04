@@ -16,8 +16,9 @@ type ConfigStruct struct {
 	Logger LoggerConfig   `yaml:"logging"`
 }
 type JwtConfig struct {
-	Secret string `yaml:"secret"`
-	Expire int64  `yaml:"expire"`
+	Secret       string   `yaml:"secret"`
+	Expire       int64    `yaml:"expire"`
+	SkippedPaths []string `yaml:"skippedPaths"`
 }
 type ServerConfig struct {
 	Port string `yaml:"port"`
