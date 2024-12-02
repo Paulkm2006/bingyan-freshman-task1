@@ -66,7 +66,7 @@ func DeleteComment(c echo.Context) error {
 	}
 	comment, err := model.GetCommentByCID(cid)
 	if err != nil {
-		return echo.ErrNotFound
+		return param.ErrNotFound(c, nil)
 	}
 	token := c.Get("user").(*jwt.Token).Raw
 	claims, err := utils.ParseToken(token)
@@ -74,7 +74,7 @@ func DeleteComment(c echo.Context) error {
 		return param.ErrUnauthorized(c, nil)
 	}
 	if comment.UID != claims.UID && claims.Permission == 0 {
-		return echo.ErrForbidden
+		return param.ErrForbidden(c, nil)
 	}
 	err = model.DeleteComment(cid, comment.PID)
 	if err != nil {
