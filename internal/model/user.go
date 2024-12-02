@@ -13,7 +13,7 @@ type User struct {
 	Password   string `json:"password"`
 	Email      string `json:"email"`
 	Nickname   string `json:"nickname,omitempty"`
-	Permissiom int    `json:"permission" gorm:"default:0"`
+	Permission int    `json:"permission" gorm:"default:0"`
 }
 
 var ErrUserNotFound = errors.New("user not found")
