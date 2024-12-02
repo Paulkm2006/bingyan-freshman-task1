@@ -97,7 +97,7 @@ func UserDelete(c echo.Context) error {
 	if err != nil {
 		return echo.ErrUnauthorized
 	}
-	if claims.Permissiom == 0 {
+	if claims.Permission == 0 {
 		return echo.ErrForbidden
 	}
 	if err = c.Bind(&user); err != nil {
