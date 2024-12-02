@@ -19,4 +19,13 @@ func InitDB() {
 	if err := db.AutoMigrate(&User{}); err != nil {
 		panic(err)
 	}
+	if err := db.AutoMigrate(&Post{}); err != nil {
+		panic(err)
+	}
+	if err := db.AutoMigrate(&Comment{}); err != nil {
+		panic(err)
+	}
+	if err := db.AutoMigrate(&Like{}); err != nil {
+		panic(err)
+	}
 }

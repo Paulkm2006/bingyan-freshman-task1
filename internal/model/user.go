@@ -28,7 +28,7 @@ func AddDefaultAdmin() error {
 	admin := &User{
 		Username:   config.Config.Admin.Username,
 		Password:   fmt.Sprintf("%x", md5.Sum([]byte(config.Config.Admin.Password))),
-		Permissiom: 1,
+		Permission: 1,
 	}
 	resultUser := db.Model(&User{}).Create(admin)
 	if resultUser.Error != nil {
