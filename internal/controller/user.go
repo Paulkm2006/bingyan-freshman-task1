@@ -54,7 +54,7 @@ func UserLogin(c echo.Context) error {
 	if result.Password != fmt.Sprintf("%x", md5.Sum([]byte(user.Password))) {
 		return echo.ErrUnauthorized
 	}
-	token, err := utils.GenerateToken(result.ID, result.Permissiom)
+	token, err := utils.GenerateToken(result.ID, result.Permission)
 	if err != nil {
 		return echo.ErrInternalServerError
 	}
