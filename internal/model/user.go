@@ -31,7 +31,7 @@ func AddDefaultAdmin() error {
 		Permissiom: 1,
 	}
 	resultUser := db.Model(&User{}).Create(admin)
-	if resultUser.Error == nil {
+	if resultUser.Error != nil {
 		return resultUser.Error
 	}
 	return nil
