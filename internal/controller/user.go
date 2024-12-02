@@ -54,7 +54,7 @@ func UserLogin(c echo.Context) error {
 	if result.Password != fmt.Sprintf("%x", md5.Sum([]byte(user.Password))) {
 		return echo.ErrUnauthorized
 	}
-	token, err := utils.GenerateToken(result.ID, false)
+	token, err := utils.GenerateToken(result.ID, result.Permissiom)
 	if err != nil {
 		return echo.ErrInternalServerError
 	}
@@ -97,7 +97,7 @@ func UserDelete(c echo.Context) error {
 	if err != nil {
 		return echo.ErrUnauthorized
 	}
-	if !claims.Admin {
+	if claims.Permissiom == 0 {
 		return echo.ErrForbidden
 	}
 	if err = c.Bind(&user); err != nil {

@@ -16,6 +16,7 @@ func main() {
 	utils.InitLogger(e)
 	defer utils.Logger.Sync()
 	model.InitDB()
+	model.AddDefaultAdmin()
 	utils.InitRedis()
 	utils.InitJWT(e)
 	//model.AddDefaultAdmin()

@@ -1,19 +1,41 @@
 package model
 
 import (
+	"bingyan-freshman-task0/internal/config"
+	"crypto/md5"
 	"errors"
+	"fmt"
 )
 
 type User struct {
-	ID       int    `json:"id" gorm:"primaryKey;autoIncrement;index" query:"id"`
-	Username string `json:"username" gorm:"unique" query:"username"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
-	Nickname string `json:"nickname,omitempty"`
+	ID         int    `json:"id" gorm:"primaryKey;autoIncrement;index" query:"id"`
+	Username   string `json:"username" gorm:"unique" query:"username"`
+	Password   string `json:"password"`
+	Email      string `json:"email"`
+	Nickname   string `json:"nickname,omitempty"`
+	Permissiom int    `json:"permission" gorm:"default:0"`
 }
 
 var ErrUserNotFound = errors.New("user not found")
 var ErrUserAlreadyExist = errors.New("user already exist")
+
+func AddDefaultAdmin() error {
+	// Add default admin
+	_, err := GetUserByUsername("admin")
+	if err == nil {
+		return ErrUserAlreadyExist
+	}
+	admin := &User{
+		Username:   config.Config.Admin.Username,
+		Password:   fmt.Sprintf("%x", md5.Sum([]byte(config.Config.Admin.Password))),
+		Permissiom: 1,
+	}
+	resultUser := db.Model(&User{}).Create(admin)
+	if resultUser.Error == nil {
+		return resultUser.Error
+	}
+	return nil
+}
 
 func AddUser(user *User) error {
 	// Add user
