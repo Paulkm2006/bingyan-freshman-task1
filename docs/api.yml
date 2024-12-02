@@ -145,47 +145,6 @@ paths:
           description: Invalid username or password
         '400':
           description: Invalid input
-  /admin/token:
-    post:
-      summary: Get access token for admin
-      description: Get access token by username and password
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  required: true
-                  type: string
-                password:
-                  required: true
-                  type: string
-      responses:
-        '200':
-          description: Access token
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  msg:
-                    type: string
-                    description: Always empty
-                  data:
-                    type: object
-                    properties:
-                      token:
-                        type: string
-                      expires_in:
-                        type: integer
-        '401':
-          description: Invalid username or password
-        '400':
-          description: Invalid input
   /verify:
     get:
       summary: Get email verification code
@@ -195,6 +154,267 @@ paths:
           required: true
           schema:
             type: string
+  /post:
+    post:
+      summary: Create a new post
+      security:
+        - bearerAuth: [user]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  required: true
+                content:
+                  type: string
+                  required: true
+      responses:
+        '200':
+          description: Post created successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    get:
+      summary: Get all posts with pagination
+      security:
+        - bearerAuth: [user]
+      parameters:
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of posts
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    delete:
+      summary: Delete a post
+      security:
+        - bearerAuth: [user, admin]
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Post deleted successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Not authorized to delete this post
+
+  /post/pid:
+    get:
+      summary: Get post by ID
+      security:
+        - bearerAuth: [user]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Post details
+        '404':
+          description: Post not found
+
+  /post/uid:
+    get:
+      summary: Get posts by user ID
+      security:
+        - bearerAuth: [user]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of posts by user
+
+  /comment:
+    post:
+      summary: Create a new comment
+      security:
+        - bearerAuth: [user]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  required: true
+                pid:
+                  type: integer
+                  required: true
+      responses:
+        '200':
+          description: Comment created successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    delete:
+      summary: Delete a comment
+      security:
+        - bearerAuth: [user]
+      parameters:
+        - name: cid
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Comment deleted successfully
+        '403':
+          description: Not authorized to delete this comment
+
+  /comment/pid:
+    get:
+      summary: Get comments by post ID
+      security:
+        - bearerAuth: [user]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of comments for post
+
+  /comment/uid:
+    get:
+      summary: Get comments by user ID
+      security:
+        - bearerAuth: [user]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of comments by user
+
+  /like:
+    post:
+      summary: Like a post
+      security:
+        - bearerAuth: [user]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pid:
+                  type: integer
+                  required: true
+      responses:
+        '200':
+          description: Post liked successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    delete:
+      summary: Unlike a post
+      security:
+        - bearerAuth: [user]
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Like removed successfully
+        '404':
+          description: Like not found
+
+  /like/pid:
+    get:
+      summary: Get likes by post ID
+      security:
+        - bearerAuth: [user]
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of likes for post
+
+  /like/uid:
+    get:
+      summary: Get likes by user ID
+      security:
+        - bearerAuth: [user]
+      parameters:
+        - name: uid
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of likes by user
 
 components:
   securitySchemes:
