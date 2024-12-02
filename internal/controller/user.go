@@ -16,11 +16,11 @@ func UserInfo(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token).Raw
 	_, err := utils.ParseToken(token)
 	if err != nil {
-		return echo.ErrUnauthorized
+		return param.ErrUnauthorized(c, nil)
 	}
 	var req model.User
 	if err := c.Bind(&req); err != nil {
-		return echo.ErrBadRequest
+		return param.ErrBadRequest(c, nil)
 	}
 	var user *model.User
 	if req.ID != 0 {
@@ -28,35 +28,32 @@ func UserInfo(c echo.Context) error {
 	} else if req.Username != "" {
 		user, err = model.GetUserByUsername(req.Username)
 	} else {
-		return echo.ErrBadRequest
+		return param.ErrBadRequest(c, nil)
 	}
 	if err == model.ErrUserNotFound {
-		return echo.ErrNotFound
+		return param.ErrNotFound(c, "user not found")
 	} else if err != nil {
-		return echo.ErrInternalServerError
+		return param.ErrInternalServerError(c, err.Error())
 	}
 	user.Password = ""
-	return c.JSON(200, &param.Resp{
-		Success: true,
-		Data:    user,
-	})
+	return param.Success(c, user)
 }
 
 func UserLogin(c echo.Context) error {
 	var user model.User
 	if err := c.Bind(&user); err != nil {
-		return echo.ErrBadRequest
+		return param.ErrBadRequest(c, nil)
 	}
 	result, err := model.GetUserByUsername(user.Username)
 	if err != nil {
-		return echo.ErrUnauthorized
+		return param.ErrUnauthorized(c, "Username not found")
 	}
 	if result.Password != fmt.Sprintf("%x", md5.Sum([]byte(user.Password))) {
-		return echo.ErrUnauthorized
+		return param.ErrUnauthorized(c, "Password incorrect")
 	}
 	token, err := utils.GenerateToken(result.ID, result.Permission)
 	if err != nil {
-		return echo.ErrInternalServerError
+		return param.ErrInternalServerError(c, err.Error())
 	}
 	return c.JSON(200, &param.Resp{
 		Success: true,
@@ -70,24 +67,22 @@ func UserLogin(c echo.Context) error {
 func UserRegister(c echo.Context) error {
 	var user model.User
 	if err := c.Bind(&user); err != nil {
-		return echo.ErrBadRequest
+		return param.ErrBadRequest(c, nil)
 	}
 	status, err := utils.ValidateCode(user.Email, c.QueryParam("code"))
 	if err != nil {
-		return echo.ErrInternalServerError
+		return param.ErrInternalServerError(c, err.Error())
 	} else if !status {
-		return echo.ErrUnauthorized
+		return param.ErrUnauthorized(c, "Invalid code")
 	}
 	user.Password = fmt.Sprintf("%x", md5.Sum([]byte(user.Password)))
 	err = model.AddUser(&user)
 	if err == model.ErrUserAlreadyExist {
-		return echo.ErrConflict
+		return param.ErrConflict(c, "Username already exists")
 	} else if err != nil {
-		return echo.ErrInternalServerError
+		return param.ErrInternalServerError(c, err.Error())
 	}
-	return c.JSON(201, &param.Resp{
-		Success: true,
-	})
+	return param.Success(c, nil)
 }
 
 func UserDelete(c echo.Context) error {
@@ -95,21 +90,19 @@ func UserDelete(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
 	claims, err := utils.ParseToken(token.Raw)
 	if err != nil {
-		return echo.ErrUnauthorized
+		return param.ErrUnauthorized(c, nil)
 	}
 	if claims.Permission == 0 {
-		return echo.ErrForbidden
+		return param.ErrForbidden(c, nil)
 	}
 	if err = c.Bind(&user); err != nil {
-		return echo.ErrBadRequest
+		return param.ErrBadRequest(c, nil)
 	}
 	err = model.DeleteUser(user.ID)
 	if err == model.ErrUserNotFound {
-		return echo.ErrNotFound
+		return param.ErrNotFound(c, "User not found")
 	} else if err != nil {
-		return echo.ErrInternalServerError
+		return param.ErrInternalServerError(c, err.Error())
 	}
-	return c.JSON(200, &param.Resp{
-		Success: true,
-	})
+	return param.Success(c, nil)
 }
