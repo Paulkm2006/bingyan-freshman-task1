@@ -12,7 +12,7 @@ import (
 
 type JWTClaims struct {
 	UID        int `json:"uid"`
-	Permissiom int `json:"permission"` // 0: user, 1: admin
+	Permission int `json:"permission"` // 0: user, 1: admin
 	jwt.RegisteredClaims
 }
 
