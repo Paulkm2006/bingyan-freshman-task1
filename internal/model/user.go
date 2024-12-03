@@ -14,6 +14,8 @@ type User struct {
 	Email      string `json:"email"`
 	Nickname   string `json:"nickname,omitempty"`
 	Permission int    `json:"permission" gorm:"default:0"`
+	Followed   int    `json:"followed" gorm:"default:0"`  // Number of people followed
+	Followers  int    `json:"followers" gorm:"default:0"` // Number of followers
 }
 
 var ErrUserNotFound = errors.New("user not found")
@@ -91,4 +93,48 @@ func GetUserByUsername(username string) (*User, error) {
 		return nil, ErrUserNotFound
 	}
 	return user, result.Error
+}
+
+func IncrFollowed(id int) error {
+	// Increase followed
+	user, err := GetUserByID(id)
+	if err != nil {
+		return err
+	}
+	user.Followed++
+	result := db.Save(user)
+	return result.Error
+}
+
+func DecrFollowed(id int) error {
+	// Decrease followed
+	user, err := GetUserByID(id)
+	if err != nil {
+		return err
+	}
+	user.Followed--
+	result := db.Save(user)
+	return result.Error
+}
+
+func IncrFollowers(id int) error {
+	// Increase followers
+	user, err := GetUserByID(id)
+	if err != nil {
+		return err
+	}
+	user.Followers++
+	result := db.Save(user)
+	return result.Error
+}
+
+func DecrFollowers(id int) error {
+	// Decrease followers
+	user, err := GetUserByID(id)
+	if err != nil {
+		return err
+	}
+	user.Followers--
+	result := db.Save(user)
+	return result.Error
 }

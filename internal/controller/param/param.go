@@ -1,6 +1,10 @@
 package param
 
-import "github.com/labstack/echo/v4"
+import (
+	"bingyan-freshman-task0/internal/utils"
+
+	"github.com/labstack/echo/v4"
+)
 
 type Resp struct {
 	Success bool        `json:"success"`
@@ -24,6 +28,24 @@ type Paging struct {
 	Id       int `query:"id"`
 	Page     int `query:"page"`
 	PageSize int `query:"pageSize"`
+	Sort     int `query:"sort"` // 0: by time desc, 1: by comment num desc, 2: by like num desc
+}
+
+func (p *Paging) Validate() bool {
+	return p.Page > 0 && p.PageSize > 0
+}
+
+func (p *Paging) SortingStatement() string {
+	switch p.Sort {
+	case 0:
+		return "created desc"
+	case 1:
+		return "comments desc"
+	case 2:
+		return "likes desc"
+	default:
+		return "created desc"
+	}
 }
 
 type ErrResp struct {
@@ -65,6 +87,7 @@ func ErrInternalServerError(c echo.Context, msg interface{}) error {
 	if msg == nil {
 		msg = "Internal Server Error"
 	}
+	utils.Logger.Error(msg.(string))
 	return c.JSON(500, &ErrResp{
 		Code: 500,
 		Msg:  msg,
@@ -87,6 +110,16 @@ func ErrForbidden(c echo.Context, msg interface{}) error {
 	}
 	return c.JSON(403, &ErrResp{
 		Code: 403,
+		Msg:  msg,
+	})
+}
+
+func ErrIntervalTooShort(c echo.Context, msg interface{}) error {
+	if msg == nil {
+		msg = "Interval too short"
+	}
+	return c.JSON(429, &ErrResp{
+		Code: 429,
 		Msg:  msg,
 	})
 }

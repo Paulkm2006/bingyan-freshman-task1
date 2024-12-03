@@ -14,26 +14,42 @@ func InitRouter(e *echo.Echo) {
 	// user
 	e.POST(fmt.Sprintf("/%s/user/token", ver), controller.UserLogin) //Login and retrieve token
 	e.POST(fmt.Sprintf("/%s/user", ver), controller.UserRegister)    // Register
-	e.DELETE(fmt.Sprintf("/%s/user", ver), controller.UserDelete)    // Delete user, requires admin token
-	e.GET(fmt.Sprintf("/%s/user", ver), controller.UserInfo)         // Get user information, requires token
-	e.GET(fmt.Sprintf("/%s/verify", ver), controller.SendValidation) // Get user information, requires admin token
+	e.GET(fmt.Sprintf("/%s/user", ver), controller.UserInfo)         // Get user information
+	e.GET(fmt.Sprintf("/%s/verify", ver), controller.SendValidation) // Get user information
+	e.DELETE(fmt.Sprintf("/%s/user", ver), controller.UserDelete)    // Delete user
 
 	// post
-	e.POST(fmt.Sprintf("/%s/post", ver), controller.CreatePost)       // Create post, requires token
-	e.GET(fmt.Sprintf("/%s/post", ver), controller.GetPosts)          // Get post, requires token
-	e.GET(fmt.Sprintf("/%s/post/pid", ver), controller.GetPostByPID)  // Get post by id, requires token
-	e.GET(fmt.Sprintf("/%s/post/uid", ver), controller.GetPostsByUID) // Get post by user id, requires token
-	e.DELETE(fmt.Sprintf("/%s/post", ver), controller.DeletePost)     // Delete post, requires token
+	e.POST(fmt.Sprintf("/%s/post", ver), controller.CreatePost)       // Create post
+	e.GET(fmt.Sprintf("/%s/post", ver), controller.GetPosts)          // Get all posts
+	e.GET(fmt.Sprintf("/%s/post/pid", ver), controller.GetPostByPID)  // Get post by id
+	e.GET(fmt.Sprintf("/%s/post/uid", ver), controller.GetPostsByUID) // Get post by user id
+	e.GET(fmt.Sprintf("/%s/post/nid", ver), controller.GetPostsByNID) // Get post by node id
+	e.DELETE(fmt.Sprintf("/%s/post", ver), controller.DeletePost)     // Delete post
 
 	// comment
-	e.POST(fmt.Sprintf("/%s/comment", ver), controller.CreateComment)       // Create comment, requires token
-	e.GET(fmt.Sprintf("/%s/comment/pid", ver), controller.GetCommentsByPID) // Get comment, requires token
-	e.GET(fmt.Sprintf("/%s/comment/uid", ver), controller.GetCommentsByUID) // Get comment by user id, requires token
-	e.DELETE(fmt.Sprintf("/%s/comment", ver), controller.DeleteComment)     // Delete comment, requires token
+	e.POST(fmt.Sprintf("/%s/comment", ver), controller.CreateComment)       // Create comment
+	e.GET(fmt.Sprintf("/%s/comment/pid", ver), controller.GetCommentsByPID) // Get comment by post id
+	e.GET(fmt.Sprintf("/%s/comment/uid", ver), controller.GetCommentsByUID) // Get comment by user id
+	e.DELETE(fmt.Sprintf("/%s/comment", ver), controller.DeleteComment)     // Delete comment
 
 	// like
-	e.POST(fmt.Sprintf("/%s/like", ver), controller.CreateLike)       // Like, requires token
-	e.GET(fmt.Sprintf("/%s/like/pid", ver), controller.GetLikesByPID) // Get likes by post id, requires token
-	e.GET(fmt.Sprintf("/%s/like/uid", ver), controller.GetLikesByUID) // Get likes by user id, requires token
-	e.DELETE(fmt.Sprintf("/%s/like", ver), controller.DeleteLike)     // Cancel like, requires token
+	e.POST(fmt.Sprintf("/%s/like", ver), controller.CreateLike)       // Like
+	e.GET(fmt.Sprintf("/%s/like/pid", ver), controller.GetLikesByPID) // Get likes by post id
+	e.GET(fmt.Sprintf("/%s/like/uid", ver), controller.GetLikesByUID) // Get likes by user id
+	e.DELETE(fmt.Sprintf("/%s/like", ver), controller.DeleteLike)     // Cancel like
+
+	// node
+	e.POST(fmt.Sprintf("/%s/node", ver), controller.CreateNode)                  // Create node
+	e.POST(fmt.Sprintf("/%s/node/moderator", ver), controller.AddModerator)      // Add moderator
+	e.GET(fmt.Sprintf("/%s/node", ver), controller.GetNodes)                     // Get all nodes
+	e.GET(fmt.Sprintf("/%s/node/nid", ver), controller.GetNodeByNID)             // Get moderators
+	e.DELETE(fmt.Sprintf("/%s/node/moderator", ver), controller.DeleteModerator) // Delete moderator
+	e.DELETE(fmt.Sprintf("/%s/node", ver), controller.DeleteNode)                // Delete node
+
+	// follow
+	e.POST(fmt.Sprintf("/%s/follow", ver), controller.Follow)        // Follow
+	e.GET(fmt.Sprintf("/%s/follow", ver), controller.GetFollows)     // Get follows
+	e.GET(fmt.Sprintf("/%s/follower", ver), controller.GetFollowers) // Get followers
+	e.DELETE(fmt.Sprintf("/%s/follow", ver), controller.Unfollow)    // Unfollow
+
 }

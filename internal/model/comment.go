@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"bingyan-freshman-task0/internal/controller/param"
+	"time"
+)
 
 type Comment struct {
 	CID     int       `json:"cid" gorm:"primaryKey;autoIncrement;index" query:"cid"`
@@ -31,18 +34,26 @@ func GetCommentByCID(cid int) (*Comment, error) {
 	return &comment, nil
 }
 
-func GetCommentsByPID(pid int, page int, pageSize int) ([]Comment, error) {
+func GetCommentsByPID(paging param.Paging) ([]Comment, error) {
 	var comments []Comment
-	result := db.Where("p_id = ?", pid).Find(&comments).Limit(pageSize).Offset((page - 1) * pageSize)
+	result := db.Where("p_id = ?", paging.Id).
+		Find(&comments).
+		Limit(paging.PageSize).
+		Offset((paging.Page - 1) * paging.PageSize).
+		Order("created desc")
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return comments, nil
 }
 
-func GetCommentsByUID(uid int, page int, pageSize int) ([]Comment, error) {
+func GetCommentsByUID(paging param.Paging) ([]Comment, error) {
 	var comments []Comment
-	result := db.Where("uid = ?", uid).Find(&comments).Limit(pageSize).Offset((page - 1) * pageSize)
+	result := db.Where("uid = ?", paging.Id).
+		Find(&comments).
+		Limit(paging.PageSize).
+		Offset((paging.Page - 1) * paging.PageSize).
+		Order("created desc")
 	if result.Error != nil {
 		return nil, result.Error
 	}

@@ -11,24 +11,18 @@ func SendValidation(c echo.Context) error {
 	mail := c.QueryParam("mail")
 	status, t, err := utils.CheckEmailExist(mail)
 	if err != nil {
-		return echo.ErrInternalServerError
+		return param.ErrInternalServerError(c, err.Error())
 	} else if status {
-		return c.JSON(429, &param.Resp{
-			Success: false,
-			Msg:     "Interval too short",
-			Data:    t,
-		})
+		return param.ErrIntervalTooShort(c, t)
 	}
 	code := utils.GenerateValidationCode()
 	err = utils.SendValidation(mail, code)
 	if err != nil {
-		return echo.ErrInternalServerError
+		return param.ErrInternalServerError(c, err.Error())
 	}
 	err = utils.WriteValidationCode(mail, code)
 	if err != nil {
-		return echo.ErrInternalServerError
+		return param.ErrInternalServerError(c, err.Error())
 	}
-	return c.JSON(200, &param.Resp{
-		Success: true,
-	})
+	return param.Success(c, nil)
 }

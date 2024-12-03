@@ -1,7 +1,7 @@
 package model
 
 import (
-	"errors"
+	"bingyan-freshman-task0/internal/controller/param"
 	"time"
 
 	"gorm.io/gorm"
@@ -14,23 +14,29 @@ type Post struct {
 	UID      int       `json:"uid" gorm:"index" query:"uid"`
 	Title    string    `json:"title" query:"title"`
 	Content  string    `json:"content" query:"content"`
+	NID      int       `json:"nid" gorm:"index" query:"nid"`
 	Likes    int       `json:"likes" gorm:"default:0"`
 	Comments int       `json:"comments" gorm:"default:0"`
 }
-
-var ErrPostNotFound = errors.New("post not found")
 
 func CreatePost(post *Post) (int, error) {
 	result := db.Model(&Post{}).Clauses(clause.Returning{}).Create(post)
 	if result.Error != nil {
 		return 0, result.Error
 	}
+	err := IncrArticle(post.NID)
+	if err != nil {
+		return 0, err
+	}
 	return post.PID, nil
 }
 
-func GetPosts(page int, pageSize int) ([]Post, error) {
+func GetPosts(paging param.Paging) ([]Post, error) {
 	var posts []Post
-	result := db.Find(&posts).Limit(pageSize).Offset((page - 1) * pageSize)
+	result := db.Find(&posts).
+		Limit(paging.PageSize).
+		Offset((paging.Page - 1) * paging.PageSize).
+		Order(paging.SortingStatement())
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -46,9 +52,26 @@ func GetPostByPID(pid int) (*Post, error) {
 	return &post, nil
 }
 
-func GetPostsByUID(uid int, page int, pageSize int) ([]Post, error) {
+func GetPostsByNID(paging param.Paging) ([]Post, error) {
 	var posts []Post
-	result := db.Where("uid = ?", uid).Find(&posts).Limit(pageSize).Offset((page - 1) * pageSize)
+	result := db.Where("n_id = ?", paging.Id).
+		Find(&posts).
+		Limit(paging.PageSize).
+		Offset((paging.Page - 1) * paging.PageSize).
+		Order(paging.SortingStatement())
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return posts, nil
+}
+
+func GetPostsByUID(paging param.Paging) ([]Post, error) {
+	var posts []Post
+	result := db.Where("uid = ?", paging.Id).
+		Find(&posts).
+		Limit(paging.PageSize).
+		Offset((paging.Page - 1) * paging.PageSize).
+		Order(paging.SortingStatement())
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -67,6 +90,10 @@ func DeletePost(pid int) error {
 	result = db.Where("p_id = ?", pid).Delete(&Comment{})
 	if result.Error != nil {
 		return result.Error
+	}
+	err := DecrArticle(pid)
+	if err != nil {
+		return err
 	}
 	return nil
 }

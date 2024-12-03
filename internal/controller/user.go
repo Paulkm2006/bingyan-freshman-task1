@@ -8,17 +8,12 @@ import (
 	"crypto/md5"
 	"fmt"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
 func UserInfo(c echo.Context) error {
-	token := c.Get("user").(*jwt.Token).Raw
-	_, err := utils.ParseToken(token)
-	if err != nil {
-		return param.ErrUnauthorized(c, nil)
-	}
 	var req model.User
+	var err error
 	if err := c.Bind(&req); err != nil {
 		return param.ErrBadRequest(c, nil)
 	}
@@ -87,18 +82,13 @@ func UserRegister(c echo.Context) error {
 
 func UserDelete(c echo.Context) error {
 	var user model.User
-	token := c.Get("user").(*jwt.Token)
-	claims, err := utils.ParseToken(token.Raw)
-	if err != nil {
-		return param.ErrUnauthorized(c, nil)
-	}
-	if claims.Permission == 0 {
+	if !utils.CheckPermission(c, 1) {
 		return param.ErrForbidden(c, nil)
 	}
-	if err = c.Bind(&user); err != nil {
+	if err := c.Bind(&user); err != nil {
 		return param.ErrBadRequest(c, nil)
 	}
-	err = model.DeleteUser(user.ID)
+	err := model.DeleteUser(user.ID)
 	if err == model.ErrUserNotFound {
 		return param.ErrNotFound(c, "User not found")
 	} else if err != nil {

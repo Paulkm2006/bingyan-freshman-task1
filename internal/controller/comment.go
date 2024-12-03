@@ -6,22 +6,20 @@ import (
 	"bingyan-freshman-task0/internal/utils"
 	"strconv"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
 func CreateComment(c echo.Context) error {
-	token := c.Get("user").(*jwt.Token).Raw
-	claims, err := utils.ParseToken(token)
-	if err != nil {
+	uid := utils.GetUID(c)
+	if uid == -1 {
 		return param.ErrUnauthorized(c, nil)
 	}
 	var req model.Comment
 	if err := c.Bind(&req); err != nil {
 		return param.ErrBadRequest(c, nil)
 	}
-	req.UID = claims.UID
-	err = model.CreateComment(&req)
+	req.UID = uid
+	err := model.CreateComment(&req)
 	if err != nil {
 		return param.ErrInternalServerError(c, err.Error())
 	}
@@ -33,10 +31,10 @@ func GetCommentsByPID(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return param.ErrBadRequest(c, nil)
 	}
-	if req.Page <= 0 || req.PageSize <= 0 {
+	if req.Validate() {
 		return param.ErrBadRequest(c, "page or pageSize must be greater than 0")
 	}
-	comments, err := model.GetCommentsByPID(req.Id, req.Page, req.PageSize)
+	comments, err := model.GetCommentsByPID(req)
 	if err != nil {
 		return param.ErrInternalServerError(c, err.Error())
 	}
@@ -48,10 +46,10 @@ func GetCommentsByUID(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return param.ErrBadRequest(c, nil)
 	}
-	if req.Page <= 0 || req.PageSize <= 0 {
+	if req.Validate() {
 		return param.ErrBadRequest(c, "page or pageSize must be greater than 0")
 	}
-	comments, err := model.GetCommentsByUID(req.Id, req.Page, req.PageSize)
+	comments, err := model.GetCommentsByUID(req)
 	if err != nil {
 		return param.ErrInternalServerError(c, err.Error())
 	}
@@ -68,12 +66,11 @@ func DeleteComment(c echo.Context) error {
 	if err != nil {
 		return param.ErrNotFound(c, nil)
 	}
-	token := c.Get("user").(*jwt.Token).Raw
-	claims, err := utils.ParseToken(token)
-	if err != nil {
+	uid := utils.GetUID(c)
+	if uid == -1 {
 		return param.ErrUnauthorized(c, nil)
 	}
-	if comment.UID != claims.UID && claims.Permission == 0 {
+	if comment.UID != uid && utils.CheckPermission(c, 0) {
 		return param.ErrForbidden(c, nil)
 	}
 	err = model.DeleteComment(cid, comment.PID)

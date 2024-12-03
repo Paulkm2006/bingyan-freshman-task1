@@ -54,3 +54,21 @@ func ParseToken(token string) (*JWTClaims, error) {
 	})
 	return claims, err
 }
+
+func CheckPermission(c echo.Context, permission int) bool {
+	token := c.Get("user").(*jwt.Token).Raw
+	claims, err := ParseToken(token)
+	if err != nil {
+		return false
+	}
+	return claims.Permission == permission
+}
+
+func GetUID(c echo.Context) int {
+	token := c.Get("user").(*jwt.Token).Raw
+	claims, err := ParseToken(token)
+	if err != nil {
+		return -1
+	}
+	return claims.UID
+}

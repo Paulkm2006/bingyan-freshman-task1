@@ -28,4 +28,7 @@ func InitDB() {
 	if err := db.AutoMigrate(&Like{}); err != nil {
 		panic(err)
 	}
+	if err := db.AutoMigrate(&Node{}); err != nil {
+		panic(err)
+	}
 }
