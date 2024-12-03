@@ -31,4 +31,10 @@ func InitDB() {
 	if err := db.AutoMigrate(&Node{}); err != nil {
 		panic(err)
 	}
+	if err := db.AutoMigrate(&Follow{}); err != nil {
+		panic(err)
+	}
+	if err := db.AutoMigrate(&Body{}); err != nil {
+		panic(err)
+	}
 }

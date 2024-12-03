@@ -416,6 +416,252 @@ paths:
         '200':
           description: List of likes by user
 
+  /follow:
+    post:
+      summary: Follow a user
+      security:
+        - bearerAuth: [user]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                followee:
+                  type: integer
+                  required: true
+                  description: ID of the user to follow
+      responses:
+        '200':
+          description: Successfully followed the user
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '400':
+          description: Invalid input or cannot follow self
+
+    delete:
+      summary: Unfollow a user
+      security:
+        - bearerAuth: [user]
+      parameters:
+        - name: followee
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID of the user to unfollow
+      responses:
+        '200':
+          description: Successfully unfollowed the user
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Follow relationship not found
+
+  /follow/following:
+    get:
+      summary: Get list of users being followed
+      security:
+        - bearerAuth: [user]
+      parameters:
+        - name: uid
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: User ID to get following list for
+      responses:
+        '200':
+          description: List of following user IDs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: integer
+
+  /follow/followers:
+    get:
+      summary: Get list of followers
+      security:
+        - bearerAuth: [user]
+      parameters:
+        - name: uid
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: User ID to get followers list for
+      responses:
+        '200':
+          description: List of follower user IDs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: integer
+
+  /node:
+    post:
+      summary: Create a new node
+      security:
+        - bearerAuth: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  required: true
+                description:
+                  type: string
+                  required: true
+                article:
+                  type: integer
+                  default: 0
+                moderators:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Node created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Insufficient permissions
+
+    get:
+      summary: Get all nodes
+      security:
+        - bearerAuth: [user]
+      responses:
+        '200':
+          description: List of all nodes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    delete:
+      summary: Delete a node
+      security:
+        - bearerAuth: [admin]
+      parameters:
+        - name: nid
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Node deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Insufficient permissions
+
+  /node/nid:
+    get:
+      summary: Get node by ID
+      security:
+        - bearerAuth: [user]
+      parameters:
+        - name: nid
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Node details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardResponse'
+        '404':
+          description: Node not found
+
+  /node/moderator:
+    post:
+      summary: Add moderator to node
+      security:
+        - bearerAuth: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uid:
+                  type: integer
+                  required: true
+                nid:
+                  type: integer
+                  required: true
+      responses:
+        '200':
+          description: Moderator added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardResponse'
+        '403':
+          description: Insufficient permissions
+
+    delete:
+      summary: Remove moderator from node
+      security:
+        - bearerAuth: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uid:
+                  type: integer
+                  required: true
+                nid:
+                  type: integer
+                  required: true
+      responses:
+        '200':
+          description: Moderator removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardResponse'
+        '403':
+          description: Insufficient permissions
+
 components:
   securitySchemes:
     bearerAuth:
@@ -428,3 +674,16 @@ components:
   responses:
     UnauthorizedError:
       description: Access token is missing, invalid, expired or does not have the required permissions
+  schemas:
+    StandardResponse:
+      type: object
+      properties:
+        success:
+          type: integer
+          description: HTTP status code
+        msg:
+          type: string
+          description: Response message
+        data:
+          type: object
+          description: Response payload

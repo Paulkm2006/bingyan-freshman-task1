@@ -12,7 +12,7 @@ import (
 func CreateNode(c echo.Context) error {
 	var req model.Node
 	if err := c.Bind(&req); err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	node, err := model.CreateNode(&req)
 	if err != nil {
@@ -30,10 +30,10 @@ func GetNodes(c echo.Context) error {
 }
 
 func GetNodeByNID(c echo.Context) error {
-	id := c.Param("nid")
+	id := c.QueryParam("nid")
 	nid, err := strconv.Atoi(id)
 	if err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	node, err := model.GetNodeByNID(nid)
 	if err != nil {
@@ -49,16 +49,16 @@ func AddModerator(c echo.Context) error {
 	}
 	var req Request
 	if err := c.Bind(&req); err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	if !utils.CheckPermission(c, 1) {
-		return param.ErrForbidden(c, nil)
+		return param.ErrForbidden(c, "")
 	}
 	err := model.AddModerator(req.UID, req.NID)
 	if err != nil {
 		return param.ErrInternalServerError(c, err.Error())
 	}
-	return param.Success(c, nil)
+	return param.Success(c, "")
 }
 
 func DeleteModerator(c echo.Context) error {
@@ -68,30 +68,30 @@ func DeleteModerator(c echo.Context) error {
 	}
 	var req Request
 	if err := c.Bind(&req); err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	if !utils.CheckPermission(c, 1) {
-		return param.ErrForbidden(c, nil)
+		return param.ErrForbidden(c, "")
 	}
 	err := model.DeleteModerator(req.UID, req.NID)
 	if err != nil {
 		return param.ErrInternalServerError(c, err.Error())
 	}
-	return param.Success(c, nil)
+	return param.Success(c, "")
 }
 
 func DeleteNode(c echo.Context) error {
-	id := c.Param("nid")
+	id := c.QueryParam("nid")
 	nid, err := strconv.Atoi(id)
 	if err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	if !utils.CheckPermission(c, 1) {
-		return param.ErrForbidden(c, nil)
+		return param.ErrForbidden(c, "")
 	}
 	err = model.DeleteNode(nid)
 	if err != nil {
 		return param.ErrInternalServerError(c, err.Error())
 	}
-	return param.Success(c, nil)
+	return param.Success(c, "")
 }

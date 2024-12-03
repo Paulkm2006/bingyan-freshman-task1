@@ -7,15 +7,16 @@ import (
 )
 
 type Resp struct {
-	Success bool        `json:"success"`
-	Msg     string      `json:"msg"`
-	Data    interface{} `json:"data"`
+	Code int         `json:"success"`
+	Msg  string      `json:"msg"`
+	Data interface{} `json:"data"`
 }
 
 func Success(c echo.Context, data interface{}) error {
 	return c.JSON(200, &Resp{
-		Success: true,
-		Data:    data,
+		Code: 200,
+		Msg:  "Success",
+		Data: data,
 	})
 }
 
@@ -48,77 +49,72 @@ func (p *Paging) SortingStatement() string {
 	}
 }
 
-type ErrResp struct {
-	Code int         `json:"code"`
-	Msg  interface{} `json:"msg"`
-}
-
-func ErrBadRequest(c echo.Context, msg interface{}) error {
-	if msg == nil {
+func ErrBadRequest(c echo.Context, msg string) error {
+	if msg == "" {
 		msg = "Bad Request"
 	}
-	return c.JSON(400, &ErrResp{
+	return c.JSON(400, &Resp{
 		Code: 400,
 		Msg:  msg,
 	})
 }
 
-func ErrUnauthorized(c echo.Context, msg interface{}) error {
-	if msg == nil {
+func ErrUnauthorized(c echo.Context, msg string) error {
+	if msg == "" {
 		msg = "Unauthorized"
 	}
-	return c.JSON(401, &ErrResp{
+	return c.JSON(401, &Resp{
 		Code: 401,
 		Msg:  msg,
 	})
 }
 
-func ErrNotFound(c echo.Context, msg interface{}) error {
-	if msg == nil {
+func ErrNotFound(c echo.Context, msg string) error {
+	if msg == "" {
 		msg = "Not Found"
 	}
-	return c.JSON(404, &ErrResp{
+	return c.JSON(404, &Resp{
 		Code: 404,
 		Msg:  msg,
 	})
 }
 
-func ErrInternalServerError(c echo.Context, msg interface{}) error {
-	if msg == nil {
+func ErrInternalServerError(c echo.Context, msg string) error {
+	if msg == "" {
 		msg = "Internal Server Error"
 	}
-	utils.Logger.Error(msg.(string))
-	return c.JSON(500, &ErrResp{
+	utils.Logger.Error(msg)
+	return c.JSON(500, &Resp{
 		Code: 500,
 		Msg:  msg,
 	})
 }
 
-func ErrConflict(c echo.Context, msg interface{}) error {
-	if msg == nil {
+func ErrConflict(c echo.Context, msg string) error {
+	if msg == "" {
 		msg = "Conflict"
 	}
-	return c.JSON(409, &ErrResp{
+	return c.JSON(409, &Resp{
 		Code: 409,
 		Msg:  msg,
 	})
 }
 
-func ErrForbidden(c echo.Context, msg interface{}) error {
-	if msg == nil {
+func ErrForbidden(c echo.Context, msg string) error {
+	if msg == "" {
 		msg = "Forbidden"
 	}
-	return c.JSON(403, &ErrResp{
+	return c.JSON(403, &Resp{
 		Code: 403,
 		Msg:  msg,
 	})
 }
 
-func ErrIntervalTooShort(c echo.Context, msg interface{}) error {
-	if msg == nil {
+func ErrIntervalTooShort(c echo.Context, msg string) error {
+	if msg == "" {
 		msg = "Interval too short"
 	}
-	return c.JSON(429, &ErrResp{
+	return c.JSON(429, &Resp{
 		Code: 429,
 		Msg:  msg,
 	})

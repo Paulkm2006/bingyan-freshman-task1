@@ -4,4 +4,4 @@
 - ✅ Nodes
 - ✅ Paging result for post query
 - ✅ Admin can create nodes, delete posts and comments
-- ⚠️ Following
+- ✅ Following

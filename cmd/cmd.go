@@ -21,5 +21,5 @@ func main() {
 	utils.InitJWT(e)
 	//model.AddDefaultAdmin()
 	//e.Logger.Fatal(e.Start(":" + config.Config.Server.Port))
-	e.Start(":" + config.Config.Server.Port)
+	e.Start("127.0.0.1:" + config.Config.Server.Port)
 }

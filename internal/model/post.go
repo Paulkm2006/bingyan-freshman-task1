@@ -13,22 +13,46 @@ type Post struct {
 	Created  time.Time `json:"created" gorm:"autoCreateTime" query:"created"`
 	UID      int       `json:"uid" gorm:"index" query:"uid"`
 	Title    string    `json:"title" query:"title"`
-	Content  string    `json:"content" query:"content"`
 	NID      int       `json:"nid" gorm:"index" query:"nid"`
 	Likes    int       `json:"likes" gorm:"default:0"`
 	Comments int       `json:"comments" gorm:"default:0"`
+	Content  *string   `json:"content,omitempty" gorm:"-"` // Exclude from database
 }
 
-func CreatePost(post *Post) (int, error) {
-	result := db.Model(&Post{}).Clauses(clause.Returning{}).Create(post)
-	if result.Error != nil {
-		return 0, result.Error
+type Body struct {
+	PID     int    `json:"pid" gorm:"primaryKey;index" query:"pid"`
+	Content string `json:"content" query:"content"`
+}
+
+func CreatePost(post *Post) (*Post, error) {
+	tx := db.Begin()
+
+	content := post.Content
+	post.Content = nil
+
+	if err := tx.Clauses(clause.Returning{}).Create(post).Error; err != nil {
+		tx.Rollback()
+		return nil, err
 	}
-	err := IncrArticle(post.NID)
-	if err != nil {
-		return 0, err
+
+	if content != nil {
+		body := &Body{
+			PID:     post.PID,
+			Content: *content,
+		}
+		if err := tx.Create(body).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
 	}
-	return post.PID, nil
+
+	if err := IncrArticle(post.PID); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	tx.Commit()
+	return post, nil
 }
 
 func GetPosts(paging param.Paging) ([]Post, error) {
@@ -46,9 +70,17 @@ func GetPosts(paging param.Paging) ([]Post, error) {
 func GetPostByPID(pid int) (*Post, error) {
 	var post Post
 	result := db.Where("p_id = ?", pid).First(&post)
-	if result.Error == gorm.ErrRecordNotFound {
+	if result.Error != nil {
 		return nil, result.Error
 	}
+	var body Body
+	res := db.Where("p_id = ?", pid).First(&body)
+	if res.Error == nil {
+		post.Content = &body.Content
+	} else {
+		return nil, res.Error
+	}
+
 	return &post, nil
 }
 
@@ -91,6 +123,10 @@ func DeletePost(pid int) error {
 	if result.Error != nil {
 		return result.Error
 	}
+	result = db.Where("p_id = ?", pid).Delete(&Body{})
+	if result.Error != nil {
+		return result.Error
+	}
 	err := DecrArticle(pid)
 	if err != nil {
 		return err
@@ -128,4 +164,14 @@ func DecrComments(pid int) error {
 		return result.Error
 	}
 	return nil
+}
+
+// Add this function to update post content
+func UpdatePostContent(pid int, content string) error {
+	body := &Body{
+		PID:     pid,
+		Content: content,
+	}
+	result := db.Save(body)
+	return result.Error
 }

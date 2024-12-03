@@ -1,13 +1,42 @@
 package model
 
-import "gorm.io/gorm/clause"
+import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
+
+	"gorm.io/gorm/clause"
+)
+
+type IntArray []int
+
+func (a *IntArray) Scan(value interface{}) error {
+	if value == nil {
+		*a = IntArray{}
+		return nil
+	}
+
+	bytes, ok := value.([]byte)
+	if !ok {
+		return errors.New("failed to scan IntArray")
+	}
+
+	return json.Unmarshal(bytes, a)
+}
+
+func (a IntArray) Value() (driver.Value, error) {
+	if a == nil {
+		return "[]", nil
+	}
+	return json.Marshal(a)
+}
 
 type Node struct {
-	NID         int    `json:"nid" gorm:"primaryKey;autoIncrement;index" query:"nid"`
-	Name        string `json:"name" query:"name"`
-	Description string `json:"description" query:"description"`
-	Article     int    `json:"article" query:"article"`
-	Moderators  []int  `json:"moderators" query:"moderators" gorm:"default:[]"`
+	NID         int      `json:"nid" gorm:"primaryKey;autoIncrement;index" query:"nid"`
+	Name        string   `json:"name" query:"name"`
+	Description string   `json:"description" query:"description"`
+	Article     int      `json:"article" query:"article"`
+	Moderators  IntArray `json:"moderators" query:"moderators" gorm:"type:json"`
 }
 
 func CreateNode(node *Node) (*Node, error) {
@@ -29,7 +58,7 @@ func GetNodes() ([]Node, error) {
 
 func GetNodeByNID(nid int) (*Node, error) {
 	var node Node
-	result := db.Where("nid = ?", nid).First(&node)
+	result := db.Where("n_id = ?", nid).First(&node)
 	if result.Error != nil {
 		return nil, result.Error
 	}

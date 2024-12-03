@@ -12,11 +12,11 @@ import (
 func Follow(c echo.Context) error {
 	uid := utils.GetUID(c)
 	if uid == -1 {
-		return param.ErrUnauthorized(c, nil)
+		return param.ErrUnauthorized(c, "")
 	}
 	followee, err := strconv.Atoi(c.QueryParam("followee"))
 	if err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	var req model.Follow
 	req.UID = uid
@@ -25,13 +25,13 @@ func Follow(c echo.Context) error {
 	if err != nil {
 		return param.ErrInternalServerError(c, err.Error())
 	}
-	return param.Success(c, nil)
+	return param.Success(c, "")
 }
 
 func GetFollows(c echo.Context) error {
 	uid := utils.GetUID(c)
 	if uid == -1 {
-		return param.ErrUnauthorized(c, nil)
+		return param.ErrUnauthorized(c, "")
 	}
 	follows, err := model.GetFollowsByUID(uid)
 	if err != nil {
@@ -43,7 +43,7 @@ func GetFollows(c echo.Context) error {
 func GetFollowers(c echo.Context) error {
 	uid := utils.GetUID(c)
 	if uid == -1 {
-		return param.ErrUnauthorized(c, nil)
+		return param.ErrUnauthorized(c, "")
 	}
 	followers, err := model.GetFollowersByUID(uid)
 	if err != nil {
@@ -55,15 +55,15 @@ func GetFollowers(c echo.Context) error {
 func Unfollow(c echo.Context) error {
 	uid := utils.GetUID(c)
 	if uid == -1 {
-		return param.ErrUnauthorized(c, nil)
+		return param.ErrUnauthorized(c, "")
 	}
 	followee, err := strconv.Atoi(c.QueryParam("followee"))
 	if err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	err = model.DeleteFollow(uid, followee)
 	if err != nil {
 		return param.ErrInternalServerError(c, err.Error())
 	}
-	return param.Success(c, nil)
+	return param.Success(c, "")
 }

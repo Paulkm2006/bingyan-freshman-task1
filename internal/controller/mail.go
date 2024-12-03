@@ -13,7 +13,7 @@ func SendValidation(c echo.Context) error {
 	if err != nil {
 		return param.ErrInternalServerError(c, err.Error())
 	} else if status {
-		return param.ErrIntervalTooShort(c, t)
+		return param.ErrIntervalTooShort(c, t.String())
 	}
 	code := utils.GenerateValidationCode()
 	err = utils.SendValidation(mail, code)
@@ -24,5 +24,5 @@ func SendValidation(c echo.Context) error {
 	if err != nil {
 		return param.ErrInternalServerError(c, err.Error())
 	}
-	return param.Success(c, nil)
+	return param.Success(c, "")
 }

@@ -15,7 +15,7 @@ func UserInfo(c echo.Context) error {
 	var req model.User
 	var err error
 	if err := c.Bind(&req); err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	var user *model.User
 	if req.ID != 0 {
@@ -23,7 +23,7 @@ func UserInfo(c echo.Context) error {
 	} else if req.Username != "" {
 		user, err = model.GetUserByUsername(req.Username)
 	} else {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	if err == model.ErrUserNotFound {
 		return param.ErrNotFound(c, "user not found")
@@ -37,7 +37,7 @@ func UserInfo(c echo.Context) error {
 func UserLogin(c echo.Context) error {
 	var user model.User
 	if err := c.Bind(&user); err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	result, err := model.GetUserByUsername(user.Username)
 	if err != nil {
@@ -50,19 +50,16 @@ func UserLogin(c echo.Context) error {
 	if err != nil {
 		return param.ErrInternalServerError(c, err.Error())
 	}
-	return c.JSON(200, &param.Resp{
-		Success: true,
-		Data: &param.TokenResponse{
-			Token:   token,
-			Expires: int(config.Config.Jwt.Expire),
-		},
+	return param.Success(c, &param.TokenResponse{
+		Token:   token,
+		Expires: int(config.Config.Jwt.Expire),
 	})
 }
 
 func UserRegister(c echo.Context) error {
 	var user model.User
 	if err := c.Bind(&user); err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	status, err := utils.ValidateCode(user.Email, c.QueryParam("code"))
 	if err != nil {
@@ -77,16 +74,16 @@ func UserRegister(c echo.Context) error {
 	} else if err != nil {
 		return param.ErrInternalServerError(c, err.Error())
 	}
-	return param.Success(c, nil)
+	return param.Success(c, "")
 }
 
 func UserDelete(c echo.Context) error {
 	var user model.User
 	if !utils.CheckPermission(c, 1) {
-		return param.ErrForbidden(c, nil)
+		return param.ErrForbidden(c, "")
 	}
 	if err := c.Bind(&user); err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	err := model.DeleteUser(user.ID)
 	if err == model.ErrUserNotFound {
@@ -94,5 +91,5 @@ func UserDelete(c echo.Context) error {
 	} else if err != nil {
 		return param.ErrInternalServerError(c, err.Error())
 	}
-	return param.Success(c, nil)
+	return param.Success(c, "")
 }

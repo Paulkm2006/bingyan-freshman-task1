@@ -14,11 +14,11 @@ import (
 func CreatePost(c echo.Context) error {
 	var req model.Post
 	if err := c.Bind(&req); err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	req.UID = utils.GetUID(c)
 	if req.UID == -1 {
-		return param.ErrUnauthorized(c, nil)
+		return param.ErrUnauthorized(c, "")
 	}
 	id, err := model.CreatePost(&req)
 	if err != nil {
@@ -28,10 +28,10 @@ func CreatePost(c echo.Context) error {
 }
 
 func GetPostByPID(c echo.Context) error {
-	id := c.Param("pid")
+	id := c.QueryParam("pid")
 	pid, err := strconv.Atoi(id)
 	if err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	post, err := model.GetPostByPID(pid)
 	if err == gorm.ErrRecordNotFound {
@@ -45,7 +45,7 @@ func GetPostByPID(c echo.Context) error {
 func GetPosts(c echo.Context) error {
 	var req param.Paging
 	if err := c.Bind(&req); err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	if !req.Validate() {
 		return param.ErrBadRequest(c, "page or pageSize must be greater than 0")
@@ -60,10 +60,10 @@ func GetPosts(c echo.Context) error {
 func GetPostsByUID(c echo.Context) error {
 	var req param.Paging
 	if err := c.Bind(&req); err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	if _, err := model.GetUserByID(req.Id); err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrNotFound(c, "User not found")
 	}
 	if !req.Validate() {
 		return param.ErrBadRequest(c, "page or pageSize must be greater than 0")
@@ -78,10 +78,10 @@ func GetPostsByUID(c echo.Context) error {
 func GetPostsByNID(c echo.Context) error {
 	var req param.Paging
 	if err := c.Bind(&req); err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	if _, err := model.GetNodeByNID(req.Id); err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	if !req.Validate() {
 		return param.ErrBadRequest(c, "page or pageSize must be greater than 0")
@@ -96,12 +96,12 @@ func GetPostsByNID(c echo.Context) error {
 func DeletePost(c echo.Context) error {
 	uid := utils.GetUID(c)
 	if uid == -1 {
-		return param.ErrUnauthorized(c, nil)
+		return param.ErrUnauthorized(c, "")
 	}
-	id := c.Param("pid")
+	id := c.QueryParam("pid")
 	pid, err := strconv.Atoi(id)
 	if err != nil {
-		return param.ErrBadRequest(c, nil)
+		return param.ErrBadRequest(c, "")
 	}
 	post, err := model.GetPostByPID(pid)
 	if err != nil {
@@ -112,10 +112,10 @@ func DeletePost(c echo.Context) error {
 		return param.ErrInternalServerError(c, err.Error())
 	}
 	if post.UID != uid && utils.CheckPermission(c, 0) && !slices.Contains(node.Moderators, uid) {
-		return param.ErrForbidden(c, nil)
+		return param.ErrForbidden(c, "")
 	}
 	if err := model.DeletePost(pid); err != nil {
 		return param.ErrInternalServerError(c, err.Error())
 	}
-	return param.Success(c, nil)
+	return param.Success(c, "")
 }
