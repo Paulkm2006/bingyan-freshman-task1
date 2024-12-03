@@ -139,7 +139,7 @@ paths:
                     properties:
                       token:
                         type: string
-                      expires_in:
+                      expires:
                         type: integer
         '401':
           description: Invalid username or password
@@ -171,6 +171,9 @@ paths:
                   required: true
                 content:
                   type: string
+                  required: true
+                nid:
+                  type: integer
                   required: true
       responses:
         '200':
@@ -258,6 +261,31 @@ paths:
       responses:
         '200':
           description: List of posts by user
+
+  /post/nid:
+    get:
+      summary: Get posts by node ID
+      security:
+        - bearerAuth: [user]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of posts by node
 
   /comment:
     post:
@@ -386,6 +414,20 @@ paths:
         '404':
           description: Like not found
 
+    get:
+      summary: Get list of users being followed 
+      security:
+        - bearerAuth: [user]
+      parameters:
+        - name: uid
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of following user IDs
+
   /like/pid:
     get:
       summary: Get likes by post ID
@@ -459,9 +501,8 @@ paths:
         '404':
           description: Follow relationship not found
 
-  /follow/following:
     get:
-      summary: Get list of users being followed
+      summary: Get list of users being followed 
       security:
         - bearerAuth: [user]
       parameters:
@@ -470,48 +511,24 @@ paths:
           required: true
           schema:
             type: integer
-          description: User ID to get following list for
       responses:
         '200':
           description: List of following user IDs
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    type: array
-                    items:
-                      type: integer
 
-  /follow/followers:
+  /follower:
     get:
       summary: Get list of followers
       security:
-        - bearerAuth: [user]
+        - bearerAuth: [user] 
       parameters:
         - name: uid
           in: query
           required: true
           schema:
             type: integer
-          description: User ID to get followers list for
       responses:
         '200':
           description: List of follower user IDs
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    type: array
-                    items:
-                      type: integer
 
   /node:
     post:
