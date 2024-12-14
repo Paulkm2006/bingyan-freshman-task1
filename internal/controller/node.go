@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bingyan-freshman-task0/internal/controller/param"
+	"bingyan-freshman-task0/internal/dto"
 	"bingyan-freshman-task0/internal/model"
 	"bingyan-freshman-task0/internal/utils"
 	"strconv"
@@ -10,7 +11,7 @@ import (
 )
 
 func CreateNode(c echo.Context) error {
-	var req model.Node
+	var req dto.Node
 	if err := c.Bind(&req); err != nil {
 		return param.ErrBadRequest(c, "")
 	}

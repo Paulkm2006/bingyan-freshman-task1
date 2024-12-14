@@ -2,29 +2,14 @@ package model
 
 import (
 	"bingyan-freshman-task0/internal/controller/param"
-	"time"
+	"bingyan-freshman-task0/internal/dto"
+	"bingyan-freshman-task0/internal/service"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
-type Post struct {
-	PID      int       `json:"pid" gorm:"primaryKey;autoIncrement;index" query:"pid"`
-	Created  time.Time `json:"created" gorm:"autoCreateTime" query:"created"`
-	UID      int       `json:"uid" gorm:"index" query:"uid"`
-	Title    string    `json:"title" query:"title"`
-	NID      int       `json:"nid" gorm:"index" query:"nid"`
-	Likes    int       `json:"likes" gorm:"default:0"`
-	Comments int       `json:"comments" gorm:"default:0"`
-	Content  *string   `json:"content,omitempty" gorm:"-"` // Exclude from database
-}
-
-type Body struct {
-	PID     int    `json:"pid" gorm:"primaryKey;index" query:"pid"`
-	Content string `json:"content" query:"content"`
-}
-
-func CreatePost(post *Post) (*Post, error) {
+func CreatePost(post *dto.Post) (*dto.Post, error) {
 	tx := db.Begin()
 
 	content := post.Content
@@ -36,7 +21,7 @@ func CreatePost(post *Post) (*Post, error) {
 	}
 
 	if content != nil {
-		body := &Body{
+		body := &dto.Body{
 			PID:     post.PID,
 			Content: *content,
 		}
@@ -46,7 +31,13 @@ func CreatePost(post *Post) (*Post, error) {
 		}
 	}
 
-	if err := IncrArticle(post.PID); err != nil {
+	if err := IncrArticle(post.NID); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	err := service.IndexPost(post, content)
+	if err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -55,8 +46,8 @@ func CreatePost(post *Post) (*Post, error) {
 	return post, nil
 }
 
-func GetPosts(paging param.Paging) ([]Post, error) {
-	var posts []Post
+func GetPosts(paging param.Paging) ([]dto.Post, error) {
+	var posts []dto.Post
 	result := db.Find(&posts).
 		Limit(paging.PageSize).
 		Offset((paging.Page - 1) * paging.PageSize).
@@ -67,13 +58,13 @@ func GetPosts(paging param.Paging) ([]Post, error) {
 	return posts, nil
 }
 
-func GetPostByPID(pid int) (*Post, error) {
-	var post Post
+func GetPostByPID(pid int) (*dto.Post, error) {
+	var post dto.Post
 	result := db.Where("p_id = ?", pid).First(&post)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	var body Body
+	var body dto.Body
 	res := db.Where("p_id = ?", pid).First(&body)
 	if res.Error == nil {
 		post.Content = &body.Content
@@ -84,8 +75,8 @@ func GetPostByPID(pid int) (*Post, error) {
 	return &post, nil
 }
 
-func GetPostsByNID(paging param.Paging) ([]Post, error) {
-	var posts []Post
+func GetPostsByNID(paging param.Paging) ([]dto.Post, error) {
+	var posts []dto.Post
 	result := db.Where("n_id = ?", paging.Id).
 		Find(&posts).
 		Limit(paging.PageSize).
@@ -97,8 +88,8 @@ func GetPostsByNID(paging param.Paging) ([]Post, error) {
 	return posts, nil
 }
 
-func GetPostsByUID(paging param.Paging) ([]Post, error) {
-	var posts []Post
+func GetPostsByUID(paging param.Paging) ([]dto.Post, error) {
+	var posts []dto.Post
 	result := db.Where("uid = ?", paging.Id).
 		Find(&posts).
 		Limit(paging.PageSize).
@@ -111,19 +102,19 @@ func GetPostsByUID(paging param.Paging) ([]Post, error) {
 }
 
 func DeletePost(pid int) error {
-	result := db.Where("p_id = ?", pid).Delete(&Post{})
+	result := db.Where("p_id = ?", pid).Delete(&dto.Post{})
 	if result.Error != nil {
 		return result.Error
 	}
-	result = db.Where("p_id = ?", pid).Delete(&Like{})
+	result = db.Where("p_id = ?", pid).Delete(&dto.Like{})
 	if result.Error != nil {
 		return result.Error
 	}
-	result = db.Where("p_id = ?", pid).Delete(&Comment{})
+	result = db.Where("p_id = ?", pid).Delete(&dto.Comment{})
 	if result.Error != nil {
 		return result.Error
 	}
-	result = db.Where("p_id = ?", pid).Delete(&Body{})
+	result = db.Where("p_id = ?", pid).Delete(&dto.Body{})
 	if result.Error != nil {
 		return result.Error
 	}
@@ -135,7 +126,7 @@ func DeletePost(pid int) error {
 }
 
 func IncrLikes(pid int) error {
-	result := db.Model(&Post{}).Where("p_id = ?", pid).Update("likes", gorm.Expr("likes + ?", 1))
+	result := db.Model(&dto.Post{}).Where("p_id = ?", pid).Update("likes", gorm.Expr("likes + ?", 1))
 	if result.Error != nil {
 		return result.Error
 	}
@@ -143,7 +134,7 @@ func IncrLikes(pid int) error {
 }
 
 func DecrLikes(pid int) error {
-	result := db.Model(&Post{}).Where("p_id = ?", pid).Update("likes", gorm.Expr("likes - ?", 1))
+	result := db.Model(&dto.Post{}).Where("p_id = ?", pid).Update("likes", gorm.Expr("likes - ?", 1))
 	if result.Error != nil {
 		return result.Error
 	}
@@ -151,7 +142,7 @@ func DecrLikes(pid int) error {
 }
 
 func IncrComments(pid int) error {
-	result := db.Model(&Post{}).Where("p_id = ?", pid).Update("comments", gorm.Expr("comments + ?", 1))
+	result := db.Model(&dto.Post{}).Where("p_id = ?", pid).Update("comments", gorm.Expr("comments + ?", 1))
 	if result.Error != nil {
 		return result.Error
 	}
@@ -159,7 +150,7 @@ func IncrComments(pid int) error {
 }
 
 func DecrComments(pid int) error {
-	result := db.Model(&Post{}).Where("p_id = ?", pid).Update("comments", gorm.Expr("comments - ?", 1))
+	result := db.Model(&dto.Post{}).Where("p_id = ?", pid).Update("comments", gorm.Expr("comments - ?", 1))
 	if result.Error != nil {
 		return result.Error
 	}
@@ -168,7 +159,7 @@ func DecrComments(pid int) error {
 
 // Add this function to update post content
 func UpdatePostContent(pid int, content string) error {
-	body := &Body{
+	body := &dto.Body{
 		PID:     pid,
 		Content: content,
 	}

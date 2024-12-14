@@ -52,4 +52,7 @@ func InitRouter(e *echo.Echo) {
 	e.GET(fmt.Sprintf("/%s/follower", ver), controller.GetFollowers) // Get followers
 	e.DELETE(fmt.Sprintf("/%s/follow", ver), controller.Unfollow)    // Unfollow
 
+	// search
+	e.GET(fmt.Sprintf("/%s/search", ver), controller.SearchPost) // Search post
+
 }

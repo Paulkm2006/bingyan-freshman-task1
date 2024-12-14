@@ -3,6 +3,7 @@ package controller
 import (
 	"bingyan-freshman-task0/internal/config"
 	"bingyan-freshman-task0/internal/controller/param"
+	"bingyan-freshman-task0/internal/dto"
 	"bingyan-freshman-task0/internal/model"
 	"bingyan-freshman-task0/internal/utils"
 	"crypto/md5"
@@ -12,12 +13,12 @@ import (
 )
 
 func UserInfo(c echo.Context) error {
-	var req model.User
+	var req dto.User
 	var err error
 	if err := c.Bind(&req); err != nil {
 		return param.ErrBadRequest(c, "")
 	}
-	var user *model.User
+	var user *dto.User
 	if req.ID != 0 {
 		user, err = model.GetUserByID(req.ID)
 	} else if req.Username != "" {
@@ -35,7 +36,7 @@ func UserInfo(c echo.Context) error {
 }
 
 func UserLogin(c echo.Context) error {
-	var user model.User
+	var user dto.User
 	if err := c.Bind(&user); err != nil {
 		return param.ErrBadRequest(c, "")
 	}
@@ -57,7 +58,7 @@ func UserLogin(c echo.Context) error {
 }
 
 func UserRegister(c echo.Context) error {
-	var user model.User
+	var user dto.User
 	if err := c.Bind(&user); err != nil {
 		return param.ErrBadRequest(c, "")
 	}
@@ -78,7 +79,7 @@ func UserRegister(c echo.Context) error {
 }
 
 func UserDelete(c echo.Context) error {
-	var user model.User
+	var user dto.User
 	if !utils.CheckPermission(c, 1) {
 		return param.ErrForbidden(c, "")
 	}

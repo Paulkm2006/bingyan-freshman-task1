@@ -1,25 +1,18 @@
 package model
 
 import (
+	"bingyan-freshman-task0/internal/dto"
 	"errors"
-	"time"
 )
-
-type Like struct {
-	LID     int       `json:"lid" gorm:"primaryKey;autoIncrement;index" query:"lid"`
-	UID     int       `json:"uid" gorm:"index" query:"uid"`
-	PID     int       `json:"pid" gorm:"index" query:"pid"`
-	Created time.Time `json:"created" gorm:"autoCreateTime" query:"created"`
-}
 
 var ErrLikeNotFound = errors.New("like not found")
 
-func CreateLike(like *Like) error {
+func CreateLike(like *dto.Like) error {
 	err := IncrLikes(like.PID)
 	if err != nil {
 		return err
 	}
-	result := db.Model(&Like{}).Create(like)
+	result := db.Model(&dto.Like{}).Create(like)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -27,13 +20,13 @@ func CreateLike(like *Like) error {
 }
 
 func LikeExist(uid, pid int) bool {
-	var like Like
+	var like dto.Like
 	result := db.Where("uid = ? AND p_id = ?", uid, pid).First(&like)
 	return result.Error == nil
 }
 
-func GetLikesByUID(uid int) ([]Like, error) {
-	var likes []Like
+func GetLikesByUID(uid int) ([]dto.Like, error) {
+	var likes []dto.Like
 	result := db.Where("uid = ?", uid).Find(&likes)
 	if result.Error != nil {
 		return nil, result.Error
@@ -41,8 +34,8 @@ func GetLikesByUID(uid int) ([]Like, error) {
 	return likes, nil
 }
 
-func GetLikesByPID(pid int) ([]Like, error) {
-	var likes []Like
+func GetLikesByPID(pid int) ([]dto.Like, error) {
+	var likes []dto.Like
 	result := db.Where("p_id = ?", pid).Find(&likes)
 	if result.Error != nil {
 		return nil, result.Error
@@ -59,7 +52,7 @@ func DeleteLike(uid, pid int) error {
 	if err != nil {
 		return err
 	}
-	result := db.Where("uid = ? AND p_id = ?", uid, pid).Delete(&Like{})
+	result := db.Where("uid = ? AND p_id = ?", uid, pid).Delete(&dto.Like{})
 	if result.Error != nil {
 		return result.Error
 	}

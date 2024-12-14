@@ -2,31 +2,23 @@ package model
 
 import (
 	"bingyan-freshman-task0/internal/controller/param"
-	"time"
+	"bingyan-freshman-task0/internal/dto"
 )
 
-type Comment struct {
-	CID     int       `json:"cid" gorm:"primaryKey;autoIncrement;index" query:"cid"`
-	UID     int       `json:"uid" gorm:"index" query:"uid"`
-	Content string    `json:"content" query:"content"`
-	PID     int       `json:"pid" gorm:"index" query:"pid"`
-	Created time.Time `json:"created" gorm:"autoCreateTime" query:"created"`
-}
-
-func CreateComment(comment *Comment) error {
+func CreateComment(comment *dto.Comment) error {
 	err := IncrComments(comment.PID)
 	if err != nil {
 		return err
 	}
-	result := db.Model(&Comment{}).Create(comment)
+	result := db.Model(&dto.Comment{}).Create(comment)
 	if result.Error != nil {
 		return result.Error
 	}
 	return nil
 }
 
-func GetCommentByCID(cid int) (*Comment, error) {
-	var comment Comment
+func GetCommentByCID(cid int) (*dto.Comment, error) {
+	var comment dto.Comment
 	result := db.Where("c_id = ?", cid).First(&comment)
 	if result.Error != nil {
 		return nil, result.Error
@@ -34,8 +26,8 @@ func GetCommentByCID(cid int) (*Comment, error) {
 	return &comment, nil
 }
 
-func GetCommentsByPID(paging param.Paging) ([]Comment, error) {
-	var comments []Comment
+func GetCommentsByPID(paging param.Paging) ([]dto.Comment, error) {
+	var comments []dto.Comment
 	result := db.Where("p_id = ?", paging.Id).
 		Find(&comments).
 		Limit(paging.PageSize).
@@ -47,8 +39,8 @@ func GetCommentsByPID(paging param.Paging) ([]Comment, error) {
 	return comments, nil
 }
 
-func GetCommentsByUID(paging param.Paging) ([]Comment, error) {
-	var comments []Comment
+func GetCommentsByUID(paging param.Paging) ([]dto.Comment, error) {
+	var comments []dto.Comment
 	result := db.Where("uid = ?", paging.Id).
 		Find(&comments).
 		Limit(paging.PageSize).
@@ -65,7 +57,7 @@ func DeleteComment(cid int, pid int) error {
 	if err != nil {
 		return err
 	}
-	result := db.Where("c_id = ?", cid).Delete(&Comment{})
+	result := db.Where("c_id = ?", cid).Delete(&dto.Comment{})
 	if result.Error != nil {
 		return result.Error
 	}

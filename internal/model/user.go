@@ -2,21 +2,11 @@ package model
 
 import (
 	"bingyan-freshman-task0/internal/config"
+	"bingyan-freshman-task0/internal/dto"
 	"crypto/md5"
 	"errors"
 	"fmt"
 )
-
-type User struct {
-	ID         int    `json:"id" gorm:"primaryKey;autoIncrement;index" query:"id"`
-	Username   string `json:"username" gorm:"unique" query:"username"`
-	Password   string `json:"password"`
-	Email      string `json:"email"`
-	Nickname   string `json:"nickname,omitempty"`
-	Permission int    `json:"permission" gorm:"default:0"`
-	Followed   int    `json:"followed" gorm:"default:0"`  // Number of people followed
-	Followers  int    `json:"followers" gorm:"default:0"` // Number of followers
-}
 
 var ErrUserNotFound = errors.New("user not found")
 var ErrUserAlreadyExist = errors.New("user already exist")
@@ -27,25 +17,25 @@ func AddDefaultAdmin() error {
 	if err == nil {
 		return ErrUserAlreadyExist
 	}
-	admin := &User{
+	admin := &dto.User{
 		Username:   config.Config.Admin.Username,
 		Password:   fmt.Sprintf("%x", md5.Sum([]byte(config.Config.Admin.Password))),
 		Permission: 1,
 	}
-	resultUser := db.Model(&User{}).Create(admin)
+	resultUser := db.Model(&dto.User{}).Create(admin)
 	if resultUser.Error != nil {
 		return resultUser.Error
 	}
 	return nil
 }
 
-func AddUser(user *User) error {
+func AddUser(user *dto.User) error {
 	// Add user
 	_, err := GetUserByUsername(user.Username)
 	if err == nil {
 		return ErrUserAlreadyExist
 	}
-	resultUser := db.Model(&User{}).Create(user)
+	resultUser := db.Model(&dto.User{}).Create(user)
 	if resultUser.Error != nil {
 		return resultUser.Error
 	}
@@ -53,9 +43,9 @@ func AddUser(user *User) error {
 
 }
 
-func UpdateUser(user *User) error {
+func UpdateUser(user *dto.User) error {
 	// Update user
-	var old User
+	var old dto.User
 	result := db.Where("id = ?", user.ID).First(&old)
 	if result.Error != nil {
 		return result.Error
@@ -71,13 +61,13 @@ func DeleteUser(id int) error {
 	if err != nil {
 		return err
 	}
-	result := db.Delete(&User{}, id)
+	result := db.Delete(&dto.User{}, id)
 	return result.Error
 }
 
-func GetUserByID(id int) (*User, error) {
+func GetUserByID(id int) (*dto.User, error) {
 	// Get user
-	user := &User{}
+	user := &dto.User{}
 	result := db.Where("id = ?", id).First(user)
 	if result.Error != nil && result.Error.Error() == "record not found" {
 		return nil, ErrUserNotFound
@@ -85,9 +75,9 @@ func GetUserByID(id int) (*User, error) {
 	return user, result.Error
 }
 
-func GetUserByUsername(username string) (*User, error) {
+func GetUserByUsername(username string) (*dto.User, error) {
 	// Get user
-	user := &User{}
+	user := &dto.User{}
 	result := db.Where("username = ?", username).First(user)
 	if result.Error != nil && result.Error.Error() == "record not found" {
 		return nil, ErrUserNotFound

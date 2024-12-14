@@ -14,6 +14,7 @@ type ConfigStruct struct {
 	Mail   MailConfig     `yaml:"mail"`
 	Redis  RedisConfig    `yaml:"redis"`
 	Logger LoggerConfig   `yaml:"logging"`
+	ES     ESConfig       `yaml:"elasticsearch"`
 }
 type JwtConfig struct {
 	Secret       string   `yaml:"secret"`
@@ -49,6 +50,13 @@ type RedisConfig struct {
 type LoggerConfig struct {
 	Debug bool   `yaml:"debug"`
 	Path  string `yaml:"path"`
+}
+
+type ESConfig struct {
+	Host      string `yaml:"host"`
+	Username  string `yaml:"username"`
+	Password  string `yaml:"password"`
+	VerifyTls bool   `yaml:"verifyTls"`
 }
 
 var Config ConfigStruct

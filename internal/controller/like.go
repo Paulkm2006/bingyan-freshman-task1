@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bingyan-freshman-task0/internal/controller/param"
+	"bingyan-freshman-task0/internal/dto"
 	"bingyan-freshman-task0/internal/model"
 	"bingyan-freshman-task0/internal/utils"
 	"strconv"
@@ -14,7 +15,7 @@ func CreateLike(c echo.Context) error {
 	if uid == -1 {
 		return param.ErrUnauthorized(c, "")
 	}
-	var req model.Like
+	var req dto.Like
 	if err := c.Bind(&req); err != nil {
 		return param.ErrBadRequest(c, "")
 	}

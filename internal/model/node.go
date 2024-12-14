@@ -1,54 +1,21 @@
 package model
 
 import (
-	"database/sql/driver"
-	"encoding/json"
-	"errors"
+	"bingyan-freshman-task0/internal/dto"
 
 	"gorm.io/gorm/clause"
 )
 
-type IntArray []int
-
-func (a *IntArray) Scan(value interface{}) error {
-	if value == nil {
-		*a = IntArray{}
-		return nil
-	}
-
-	bytes, ok := value.([]byte)
-	if !ok {
-		return errors.New("failed to scan IntArray")
-	}
-
-	return json.Unmarshal(bytes, a)
-}
-
-func (a IntArray) Value() (driver.Value, error) {
-	if a == nil {
-		return "[]", nil
-	}
-	return json.Marshal(a)
-}
-
-type Node struct {
-	NID         int      `json:"nid" gorm:"primaryKey;autoIncrement;index" query:"nid"`
-	Name        string   `json:"name" query:"name"`
-	Description string   `json:"description" query:"description"`
-	Article     int      `json:"article" query:"article"`
-	Moderators  IntArray `json:"moderators" query:"moderators" gorm:"type:json"`
-}
-
-func CreateNode(node *Node) (*Node, error) {
-	result := db.Model(&Node{}).Clauses(clause.Returning{}).Create(node)
+func CreateNode(node *dto.Node) (*dto.Node, error) {
+	result := db.Model(&dto.Node{}).Clauses(clause.Returning{}).Create(node)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return node, nil
 }
 
-func GetNodes() ([]Node, error) {
-	var nodes []Node
+func GetNodes() ([]dto.Node, error) {
+	var nodes []dto.Node
 	result := db.Find(&nodes)
 	if result.Error != nil {
 		return nil, result.Error
@@ -56,8 +23,8 @@ func GetNodes() ([]Node, error) {
 	return nodes, nil
 }
 
-func GetNodeByNID(nid int) (*Node, error) {
-	var node Node
+func GetNodeByNID(nid int) (*dto.Node, error) {
+	var node dto.Node
 	result := db.Where("n_id = ?", nid).First(&node)
 	if result.Error != nil {
 		return nil, result.Error
@@ -97,7 +64,7 @@ func DeleteModerator(uid int, nid int) error {
 }
 
 func DeleteNode(nid int) error {
-	result := db.Where("nid = ?", nid).Delete(&Node{})
+	result := db.Where("nid = ?", nid).Delete(&dto.Node{})
 	if result.Error != nil {
 		return result.Error
 	}

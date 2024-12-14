@@ -1,15 +1,9 @@
 package model
 
-import "time"
+import "bingyan-freshman-task0/internal/dto"
 
-type Follow struct {
-	UID      int       `json:"uid" gorm:"primaryKey;index"`
-	Followee int       `json:"followee" gorm:"primaryKey;index"`
-	Created  time.Time `json:"created" gorm:"autoCreateTime"`
-}
-
-func CreateFollow(follow *Follow) error {
-	result := db.Model(&Follow{}).Create(follow)
+func CreateFollow(follow *dto.Follow) error {
+	result := db.Model(&dto.Follow{}).Create(follow)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -26,7 +20,7 @@ func CreateFollow(follow *Follow) error {
 
 func GetFollowsByUID(uid int) ([]int, error) {
 	var follows []int
-	result := db.Model(&Follow{}).Where("uid = ?", uid).Pluck("followee", &follows)
+	result := db.Model(&dto.Follow{}).Where("uid = ?", uid).Pluck("followee", &follows)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -35,7 +29,7 @@ func GetFollowsByUID(uid int) ([]int, error) {
 
 func GetFollowersByUID(uid int) ([]int, error) {
 	var followers []int
-	result := db.Model(&Follow{}).Where("followee = ?", uid).Pluck("uid", &followers)
+	result := db.Model(&dto.Follow{}).Where("followee = ?", uid).Pluck("uid", &followers)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -43,7 +37,7 @@ func GetFollowersByUID(uid int) ([]int, error) {
 }
 
 func DeleteFollow(uid, followee int) error {
-	result := db.Where("uid = ? AND followee = ?", uid, followee).Delete(&Follow{})
+	result := db.Where("uid = ? AND followee = ?", uid, followee).Delete(&dto.Follow{})
 	if result.Error != nil {
 		return result.Error
 	}

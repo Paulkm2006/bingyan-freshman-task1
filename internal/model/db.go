@@ -2,6 +2,7 @@ package model
 
 import (
 	"bingyan-freshman-task0/internal/config"
+	"bingyan-freshman-task0/internal/dto"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -16,25 +17,25 @@ func InitDB() {
 	if err != nil {
 		panic(err)
 	}
-	if err := db.AutoMigrate(&User{}); err != nil {
+	if err := db.AutoMigrate(&dto.User{}); err != nil {
 		panic(err)
 	}
-	if err := db.AutoMigrate(&Post{}); err != nil {
+	if err := db.AutoMigrate(&dto.Post{}); err != nil {
 		panic(err)
 	}
-	if err := db.AutoMigrate(&Comment{}); err != nil {
+	if err := db.AutoMigrate(&dto.Comment{}); err != nil {
 		panic(err)
 	}
-	if err := db.AutoMigrate(&Like{}); err != nil {
+	if err := db.AutoMigrate(&dto.Like{}); err != nil {
 		panic(err)
 	}
-	if err := db.AutoMigrate(&Node{}); err != nil {
+	if err := db.AutoMigrate(&dto.Node{}); err != nil {
 		panic(err)
 	}
-	if err := db.AutoMigrate(&Follow{}); err != nil {
+	if err := db.AutoMigrate(&dto.Follow{}); err != nil {
 		panic(err)
 	}
-	if err := db.AutoMigrate(&Body{}); err != nil {
+	if err := db.AutoMigrate(&dto.Body{}); err != nil {
 		panic(err)
 	}
 }

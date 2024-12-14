@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bingyan-freshman-task0/internal/controller/param"
+	"bingyan-freshman-task0/internal/dto"
 	"bingyan-freshman-task0/internal/model"
 	"bingyan-freshman-task0/internal/utils"
 	"slices"
@@ -12,7 +13,7 @@ import (
 )
 
 func CreatePost(c echo.Context) error {
-	var req model.Post
+	var req dto.Post
 	if err := c.Bind(&req); err != nil {
 		return param.ErrBadRequest(c, "")
 	}

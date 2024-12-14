@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bingyan-freshman-task0/internal/controller/param"
+	"bingyan-freshman-task0/internal/dto"
 	"bingyan-freshman-task0/internal/model"
 	"bingyan-freshman-task0/internal/utils"
 	"strconv"
@@ -18,7 +19,7 @@ func Follow(c echo.Context) error {
 	if err != nil {
 		return param.ErrBadRequest(c, "")
 	}
-	var req model.Follow
+	var req dto.Follow
 	req.UID = uid
 	req.Followee = followee
 	err = model.CreateFollow(&req)
