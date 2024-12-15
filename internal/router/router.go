@@ -55,4 +55,7 @@ func InitRouter(e *echo.Echo) {
 	// search
 	e.GET(fmt.Sprintf("/%s/search", ver), controller.SearchPost) // Search post
 
+	// weekly digest
+	e.GET(fmt.Sprintf("/%s/weeklyDigest", ver), controller.SendWeeklyDigest) // Send weekly digest
+
 }

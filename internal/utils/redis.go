@@ -4,6 +4,8 @@ import (
 	"bingyan-freshman-task0/internal/config"
 	"context"
 	"math"
+	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -23,13 +25,17 @@ func InitRedis() {
 	}
 }
 
+func GenerateValidationCode() string {
+	return strconv.Itoa(100000 + rand.Intn(900000))
+}
+
 func WriteValidationCode(email string, code string) error {
 	ctx := context.Background()
 	err := RedisClient.Set(ctx, email, code, 0).Err()
 	if err != nil {
 		return err
 	}
-	err = RedisClient.Expire(ctx, email, time.Duration(config.Config.Mail.Expire)*time.Second).Err()
+	err = RedisClient.Expire(ctx, email, time.Duration(config.Config.Captcha.Expire)*time.Second).Err()
 	return err
 }
 func GetValidationCode(email string) (string, error) {
@@ -59,7 +65,7 @@ func CheckEmailExist(email string) (bool, time.Time, error) {
 	if err != nil {
 		return false, time.Now(), err
 	}
-	if config.Config.Mail.Resend-int(math.Round(t.Seconds())) < 0 {
+	if config.Config.Captcha.Resend-int(math.Round(t.Seconds())) < 0 {
 		return true, time.Now().Add(t), nil
 	}
 	return false, time.Now(), nil

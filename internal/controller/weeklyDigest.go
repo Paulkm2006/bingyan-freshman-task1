@@ -2,26 +2,27 @@ package controller
 
 import (
 	"bingyan-freshman-task0/internal/controller/param"
+	"bingyan-freshman-task0/internal/model"
 	"bingyan-freshman-task0/internal/service"
 	"bingyan-freshman-task0/internal/utils"
 
 	"github.com/labstack/echo/v4"
 )
 
-func SendValidation(c echo.Context) error {
-	mail := c.QueryParam("mail")
-	status, t, err := utils.CheckEmailExist(mail)
-	if err != nil {
-		return param.ErrInternalServerError(c, err.Error())
-	} else if status {
-		return param.ErrIntervalTooShort(c, t.String())
+func SendWeeklyDigest(c echo.Context) error {
+
+	if !utils.CheckPermission(c, 1) {
+		return param.ErrUnauthorized(c, "")
 	}
-	code := utils.GenerateValidationCode()
-	err = service.SendValidation(mail, code)
+	posts, err := model.GetWeeklyPosts()
 	if err != nil {
 		return param.ErrInternalServerError(c, err.Error())
 	}
-	err = utils.WriteValidationCode(mail, code)
+	users, err := model.GetUsers()
+	if err != nil {
+		return param.ErrInternalServerError(c, err.Error())
+	}
+	err = service.SendWeeklyDigest(users, posts)
 	if err != nil {
 		return param.ErrInternalServerError(c, err.Error())
 	}

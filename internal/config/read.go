@@ -7,14 +7,15 @@ import (
 )
 
 type ConfigStruct struct {
-	Jwt    JwtConfig      `yaml:"jwt"`
-	Server ServerConfig   `yaml:"server"`
-	DB     PostgresConfig `yaml:"postgres"`
-	Admin  AdminConfig    `yaml:"admin"`
-	Mail   MailConfig     `yaml:"mail"`
-	Redis  RedisConfig    `yaml:"redis"`
-	Logger LoggerConfig   `yaml:"logging"`
-	ES     ESConfig       `yaml:"elasticsearch"`
+	Jwt     JwtConfig      `yaml:"jwt"`
+	Server  ServerConfig   `yaml:"server"`
+	DB      PostgresConfig `yaml:"postgres"`
+	Admin   AdminConfig    `yaml:"admin"`
+	Mail    MailConfig     `yaml:"mail"`
+	Captcha CaptchaConfig  `yaml:"captcha"`
+	Redis   RedisConfig    `yaml:"redis"`
+	Logger  LoggerConfig   `yaml:"logging"`
+	ES      ESConfig       `yaml:"elasticsearch"`
 }
 type JwtConfig struct {
 	Secret       string   `yaml:"secret"`
@@ -38,9 +39,15 @@ type MailConfig struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 	Nickname string `yaml:"nickname"`
-	Expire   int    `yaml:"expire"`
-	Resend   int    `yaml:"resend"`
+	Workers  int    `yaml:"workers"`
 }
+
+type CaptchaConfig struct {
+	Expire int    `yaml:"expire"`
+	Resend int    `yaml:"resend"`
+	Title  string `yaml:"title"`
+}
+
 type RedisConfig struct {
 	Host     string `yaml:"host"`
 	Password string `yaml:"password"`

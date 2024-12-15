@@ -101,6 +101,15 @@ func GetPostsByUID(paging param.Paging) ([]dto.Post, error) {
 	return posts, nil
 }
 
+func GetWeeklyPosts() ([]dto.Post, error) {
+	var posts []dto.Post
+	result := db.Raw("SELECT * FROM posts WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)").Find(&posts)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return posts, nil
+}
+
 func DeletePost(pid int) error {
 	result := db.Where("p_id = ?", pid).Delete(&dto.Post{})
 	if result.Error != nil {

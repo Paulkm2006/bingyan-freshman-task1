@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Weekly Post Digest</title>
+</head>
+<body>
+    <h1>Weekly Post Digest</h1>
+    <p>Here are the posts from the past week:</p>
+    <ul>
+        {{range .Posts}}
+        <li>{{.Title}}</li>
+        {{end}}
+    </ul>
+</body>
+</html>

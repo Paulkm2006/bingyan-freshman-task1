@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Email Validation</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+	<div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px;">
+		<div style="text-align: center; padding: 20px;">
+			<h1 style="color: #333333;">Email Verification</h1>
+		</div>
+		<div style="padding: 20px; border-top: 1px solid #eeeeee;">
+			<p>Hello,</p>
+			<p>Thank you for registering. Please verify your email address by entering the following verification code:</p>
+			<div style="background-color: #f8f8f8; padding: 15px; text-align: center; margin: 20px 0;">
+				<h2 style="margin: 0; color: #2c3e50;">{{.Code}}</h2>
+			</div>
+			<p>This code will expire in {{.Expire}} seconds.</p>
+			<p>If you didn't request this verification, please ignore this email.</p>
+		</div>
+		<div style="text-align: center; padding: 20px; border-top: 1px solid #eeeeee;">
+			<p style="color: #666666; font-size: 12px;">This is an automated message, please do not reply.</p>
+		</div>
+	</div>
+</body>
+</html>

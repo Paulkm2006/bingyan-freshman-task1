@@ -65,6 +65,13 @@ func DeleteUser(id int) error {
 	return result.Error
 }
 
+func GetUsers() ([]dto.User, error) {
+	// Get users
+	users := []dto.User{}
+	result := db.Find(&users)
+	return users, result.Error
+}
+
 func GetUserByID(id int) (*dto.User, error) {
 	// Get user
 	user := &dto.User{}
