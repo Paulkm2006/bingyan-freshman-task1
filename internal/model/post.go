@@ -103,7 +103,7 @@ func GetPostsByUID(paging param.Paging) ([]dto.Post, error) {
 
 func GetWeeklyPosts() ([]dto.Post, error) {
 	var posts []dto.Post
-	result := db.Raw("SELECT * FROM posts WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)").Find(&posts)
+	result := db.Raw("SELECT * FROM posts WHERE created > (current_date - interval '7 day')").Find(&posts)
 	if result.Error != nil {
 		return nil, result.Error
 	}
