@@ -16,6 +16,7 @@ type ConfigStruct struct {
 	Redis   RedisConfig    `yaml:"redis"`
 	Logger  LoggerConfig   `yaml:"logging"`
 	ES      ESConfig       `yaml:"elasticsearch"`
+	Oauth   OauthConfig    `yaml:"oauth"`
 }
 type JwtConfig struct {
 	Secret       string   `yaml:"secret"`
@@ -64,6 +65,12 @@ type ESConfig struct {
 	Username  string `yaml:"username"`
 	Password  string `yaml:"password"`
 	VerifyTls bool   `yaml:"verifyTls"`
+}
+
+type OauthConfig struct {
+	ClientID     string `yaml:"clientID"`
+	ClientSecret string `yaml:"clientSecret"`
+	Scope        string `yaml:"scope"`
 }
 
 var Config ConfigStruct

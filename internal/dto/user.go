@@ -9,4 +9,5 @@ type User struct {
 	Permission int    `json:"permission" gorm:"default:0"`
 	Followed   int    `json:"followed" gorm:"default:0"`  // Number of people followed
 	Followers  int    `json:"followers" gorm:"default:0"` // Number of followers
+	Oauth      bool   `json:"oauth" gorm:"default:false"` // Whether it is a third-party login
 }

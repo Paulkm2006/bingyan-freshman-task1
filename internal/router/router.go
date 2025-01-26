@@ -17,6 +17,10 @@ func InitRouter(e *echo.Echo) {
 	e.GET(fmt.Sprintf("/%s/user", ver), controller.UserInfo)         // Get user information
 	e.GET(fmt.Sprintf("/%s/verify", ver), controller.SendValidation) // Get user information
 	e.DELETE(fmt.Sprintf("/%s/user", ver), controller.UserDelete)    // Delete user
+	e.GET(fmt.Sprintf("/%s/user/oauth", ver), func(c echo.Context) error {
+		return c.Redirect(302, fmt.Sprintf("https://github.com/login/oauth/authorize?client_id=%s&scope=%s", config.Config.Oauth.ClientID, config.Config.Oauth.Scope))
+	}) // Get oauth url
+	e.GET(fmt.Sprintf("/%s/user/oauth/callback", ver), controller.OauthCallback) // Oauth callback
 
 	// post
 	e.POST(fmt.Sprintf("/%s/post", ver), controller.CreatePost)       // Create post

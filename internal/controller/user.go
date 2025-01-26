@@ -44,6 +44,11 @@ func UserLogin(c echo.Context) error {
 	if err != nil {
 		return param.ErrUnauthorized(c, "Username not found")
 	}
+
+	if result.Oauth {
+		return param.ErrUnauthorized(c, "Please login with oauth")
+	}
+
 	if result.Password != fmt.Sprintf("%x", md5.Sum([]byte(user.Password))) {
 		return param.ErrUnauthorized(c, "Password incorrect")
 	}
